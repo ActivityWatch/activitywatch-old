@@ -29,31 +29,35 @@ display = Xlib.display.Display()
 screen = display.screen()
 
 def main():
-    window_id = None
+    current_window = None
     selected_at = datetime.now()
     while True:
         sleep(1.0)
-        atom = display.get_atom("_NET_ACTIVE_WINDOW")
-        property = screen.root.get_full_property(atom, X.AnyPropertyType)
-        
-        # Skip if same as before
-        if window_id == property.value[0]:
+
+        window = display.get_input_focus().focus
+        pid = get_window_pid(window)
+        name, cls = get_window_name(window)
+
+        if not current_window:
+            print("First focus is '{}' with PID: {}".format(cls[1], pid))
+            current_window = window
+            selected_at = datetime.now()
             continue
+        
+        if current_window.id == window.id:
+            # Skip if same as before
+            if current_window.id == window.id:
+                continue
 
         # New window has been focused
         # Add actions such as log to local db here
         print("Window selected for: {}\n".format(datetime.now() - selected_at))
+        
+        print("Switched to '{}' with PID: {}".format(cls[1], pid))
+        current_window = window
         selected_at = datetime.now()
 
-        window_id = property.value[0]
-        window = get_window(window_id)
-        
-        property = window.get_full_property(display.get_atom("_NET_WM_PID"), X.AnyPropertyType)
-        pid = property.value[-1]
-
         proc = process_by_pid(pid)
-        name, cls = get_window_name(window)
-        print("Switched to '{}' with PID: {}".format(cls[1], pid))
         print("\t{}".format(proc.cmdline()))
 
 def get_window_name(window):
@@ -66,6 +70,12 @@ def get_window_name(window):
         else:
             break
     return name, cls
+
+def get_window_pid(window):
+    pid_property = window.get_full_property(display.get_atom("_NET_WM_PID"), X.AnyPropertyType)
+    pid = pid_property.value[-1]
+    return pid
+
 
 def get_window(window_id):
     return display.create_resource_object('window', window_id)
