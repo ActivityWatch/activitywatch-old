@@ -1,5 +1,7 @@
-# Open Computer Time
+# ActivityWatch
 *A complete RescueTime replacement, for the open world with Zenobase.*
+
+**NOTE: UNDER DEVELOPMENT**
 
 Logs the time spent by the user in different tasks on the computer.
 
