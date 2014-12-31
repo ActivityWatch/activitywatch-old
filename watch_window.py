@@ -28,13 +28,53 @@ from Xlib import X, Xatom
 display = Xlib.display.Display()
 screen = display.screen()
 
+class Activity(dict):
+    def __init__(this, window_class, started_at, ended_at, cmd=None):
+        dict.__init__(this)
+        this["window_class"] = window_class
+        if cmd:
+            cmd = list(filter(lambda s: s[0] != "-", cmd))
+            this["cmd"] = cmd
+        this["start"] = started_at
+        this["end"] = ended_at
+        this["duration"] = ended_at - started_at
+
+        print("\nLogged activity '{}':".format(window_class))
+        print("  Command: {}\n  Window selected for: {}\n".format(cmd, this["duration"]))
+
+def get_window(window_id):
+    return display.create_resource_object('window', window_id)
+
+def get_active_window():
+    w = screen.root.get_full_property(display.get_atom("_NET_ACTIVE_WINDOW"), X.AnyPropertyType)
+    w_id = w.value[-1]
+    return get_window(w_id)
+
+def get_window_name(window):
+    name = None
+    while window:
+        cls = window.get_wm_class()
+        name = window.get_wm_name()
+        if not cls:
+            window = window.query_tree().parent
+        else:
+            break
+    return name, cls
+
+def get_window_pid(window):
+    pid_property = window.get_full_property(display.get_atom("_NET_WM_PID"), X.AnyPropertyType)
+    if pid_property:
+        pid = pid_property.value[-1]
+        return pid
+    else:
+        raise Exception("pid_property was None")
+
 def main():
     current_window = None
     selected_at = datetime.now()
     while True:
         sleep(1.0)
-
-        window = display.get_input_focus().focus
+        window = get_active_window()
         pid = get_window_pid(window)
         name, cls = get_window_name(window)
 
@@ -51,34 +91,15 @@ def main():
 
         # New window has been focused
         # Add actions such as log to local db here
-        print("Window selected for: {}\n".format(datetime.now() - selected_at))
-        
-        print("Switched to '{}' with PID: {}".format(cls[1], pid))
-        current_window = window
-        selected_at = datetime.now()
 
         proc = process_by_pid(pid)
         print("\t{}".format(proc.cmdline()))
 
-def get_window_name(window):
-    name = None
-    while window:
-        cls = window.get_wm_class()
-        name = window.get_wm_name()
-        if not cls:
-            window = window.query_tree().parent
-        else:
-            break
-    return name, cls
-
-def get_window_pid(window):
-    pid_property = window.get_full_property(display.get_atom("_NET_WM_PID"), X.AnyPropertyType)
-    pid = pid_property.value[-1]
-    return pid
-
-
-def get_window(window_id):
-    return display.create_resource_object('window', window_id)
+        activity = Activity(cls[1], selected_at, datetime.now(), cmd=proc.cmdline())
+        print("Switched to '{}' with PID: {}".format(cls[1], pid))
+        
+        current_window = window
+        selected_at = datetime.now()
 
 def process_by_pid(pid):
     p = psutil.Process(int(pid))
