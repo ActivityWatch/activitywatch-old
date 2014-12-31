@@ -38,8 +38,12 @@ Should also perhaps also contain the following metadata
  - Zenobase viewer buckets could be used
 
 ### Software design
- - Should support different OS's (Linux, Windows, Android), do this by the strategy pattern for (get (page title and name of executable)).
+ - Should support different OS's (Linux, Windows, Android), use the strategy pattern for (get (page title and name of executable)).
+   - Some platforms might need a rewrite in their respective language
  - Remember to separate the raw exported data from the viewport
+
+### Restrictions
+ - Only checks current activity once a second, this is to reduce database size and since resolution below this rarely matters.
 
 
 ## Stories
@@ -47,14 +51,21 @@ Should also perhaps also contain the following metadata
 ### Must have
  - Log activity
  - Label AFK/away time
+    - No activity for 15 min -> T-00:15 and beyond is AFK until activity resumes
+ - Activity detector needs to be extendable with details (for browser activity, terminal multiplexers, bash/zsh, etc.)
 
 ### Nice to have
- - Controller support
+ - Aggregate activity clientside (by hour/minute) to reduce upload size to Zenobase for people who aren't subscribers
+   - Acts as an incentive for people to subscribe by allowing for easily upgrading by reuploading at a higher resolution.
+ - Controller support (so controller usage is detected as activity)
+ - Detect if media is playing (VLC, YouTube, Netflix, Plex, etc.)
+    - Could this be done by checking for audio + if window title indicated media?
  - Log tmux activity (Use `tmux server-info` and others to get data)
  - Log console commands
 
 
 ## Name propositions
- - Activity Watcher (small, it could do more than that)
+ - ActivityWatch
+    - It could do more than that, but perhaps it shouldn't so chosen for now
  - System Logger (lacks the focus on activity monitoring)
  - Computer Time (taken by [these guys](http://www.softwaretime.com/computertime/))
