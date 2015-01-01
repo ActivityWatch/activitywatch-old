@@ -69,3 +69,8 @@ Should also perhaps also contain the following metadata
     - It could do more than that, but perhaps it shouldn't so chosen for now
  - System Logger (lacks the focus on activity monitoring)
  - Computer Time (taken by [these guys](http://www.softwaretime.com/computertime/))
+
+-----------------
+
+**DISCLAIMER**  
+Not affiliated with Zenobase, just a fan.
