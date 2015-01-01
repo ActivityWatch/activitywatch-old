@@ -9,6 +9,7 @@ import sys
 import subprocess
 import unittest
 import logging
+import threading
 
 import time
 from time import sleep
@@ -25,86 +26,170 @@ import Xlib
 import Xlib.display
 from Xlib import X, Xatom
 
-display = Xlib.display.Display()
-screen = display.screen()
+import pyzenobase
+
+###########
+# Globals #
+###########
+
+# For Linux/X11
+
 
 class Activity(dict):
-    def __init__(this, window_class, started_at, ended_at, cmd=None):
-        dict.__init__(this)
-        this["window_class"] = window_class
+    def __init__(self, window_class, started_at, ended_at, cmd=None):
+        dict.__init__(self)
+        self["window_class"] = window_class
         if cmd:
             cmd = list(filter(lambda s: s[0] != "-", cmd))
-            this["cmd"] = cmd
-        this["start"] = started_at
-        this["end"] = ended_at
-        this["duration"] = ended_at - started_at
+            self["cmd"] = cmd
+        self["start"] = started_at
+        self["end"] = ended_at
+        self["duration"] = ended_at - started_at
 
         print("\nLogged activity '{}':".format(window_class))
-        print("  Command: {}\n  Window selected for: {}\n".format(cmd, this["duration"]))
+        print("  Command: {}\n  Window selected for: {}\n".format(cmd, self["duration"]))
 
-def get_window(window_id):
-    return display.create_resource_object('window', window_id)
+    def to_zenobase_event(self):
+        # TODO
+        pass
 
-def get_active_window():
-    w = screen.root.get_full_property(display.get_atom("_NET_ACTIVE_WINDOW"), X.AnyPropertyType)
-    w_id = w.value[-1]
-    return get_window(w_id)
 
-def get_window_name(window):
-    name = None
-    while window:
-        cls = window.get_wm_class()
-        name = window.get_wm_name()
-        if not cls:
-            window = window.query_tree().parent
-        else:
-            break
-    return name, cls
+class Watcher(threading.Thread):
+    """Base class for a watcher"""
 
-def get_window_pid(window):
-    pid_property = window.get_full_property(display.get_atom("_NET_WM_PID"), X.AnyPropertyType)
-    if pid_property:
-        pid = pid_property.value[-1]
-        return pid
-    else:
-        raise Exception("pid_property was None")
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.loggers = []
 
-def main():
-    current_window = None
-    selected_at = datetime.now()
-    while True:
-        sleep(1.0)
-        window = get_active_window()
-        pid = get_window_pid(window)
-        name, cls = get_window_name(window)
+    def _add_logger(self, logger):
+        """Should only be called from Logger.add_watcher"""
+        if not isinstance(logger, Logger):
+            raise TypeError("{} was not a Logger".format(logger))
+        self.loggers.append(logger)
 
-        if not current_window:
-            print("First focus is '{}' with PID: {}".format(cls[1], pid))
-            current_window = window
-            selected_at = datetime.now()
-            continue
+    def run(self):
+        raise NotImplementedError("Watchers must implement the run method")
+
+    def notify_change(self):
+        for logger in self.loggers:
+            # TODO
+            pass
+
+
+class X11Watcher(Watcher):
+    """Watches activity in X11"""
+    # TODO: Move window helper functions to container class for xlib's Window
+
+    def __init__(self):
+        Watcher.__init__(self)
+        self.display = Xlib.display.Display()
+        self.screen = self.display.screen()
+
+        self._last_window = None
+        self._active_window = None
+
+    @property
+    def last_window(self):
+        return self._last_window
+
+    def update_last_window(self):
+        self.last_selected_at = datetime.now()
+        self._last_window = self.active_window
+
+    @property
+    def active_window(self):
+        return self._active_window
+
+    def update_active_window(self):
+        atom = self.display.get_atom("_NET_ACTIVE_WINDOW")
+        w = self.screen.root.get_full_property(atom, X.AnyPropertyType)
+        w_id = w.value[-1]
+        self._active_window = self.get_window(w_id)
+
+    def run(self):
+        self.update_active_window()
+        window = self.active_window
         
-        if current_window.id == window.id:
-            # Skip if same as before
-            if current_window.id == window.id:
+        name, cls = self.get_window_name(window)
+        pid = self.get_window_pid(window)
+        print("First focus is '{}' with PID: {}".format(cls[1], pid))
+
+        self.update_last_window()
+
+        while True:
+            sleep(1.0)
+
+            # Window for current cycle
+            # TODO: Replace with 'update_active_window' method?
+            self.update_active_window()
+            
+            if self.last_window.id == self.active_window.id:
                 continue
 
-        # New window has been focused
-        # Add actions such as log to local db here
+            last_pid = self.get_window_pid(self.last_window)
+            pid = self.get_window_pid(self.active_window)
 
-        proc = process_by_pid(pid)
-        print("\t{}".format(proc.cmdline()))
+            last_name, last_cls = self.get_window_name(self.last_window)
+            name, cls = self.get_window_name(self.active_window)
 
-        activity = Activity(cls[1], selected_at, datetime.now(), cmd=proc.cmdline())
-        print("Switched to '{}' with PID: {}".format(cls[1], pid))
-        
-        current_window = window
-        selected_at = datetime.now()
+            # New window has been focused
+            # Add actions such as log to local db here
 
-def process_by_pid(pid):
-    p = psutil.Process(int(pid))
-    logging.debug("Got process: " + str(p.cmdline()))
-    return p
+            last_proc = self.process_by_pid(last_pid)
+            #print("\t{}".format(proc.cmdline()))
+
+            # Creation of the activity that just ended
+            # TODO: Create activity upon exit
+            activity = Activity(last_cls[1], self.last_selected_at, datetime.now(), cmd=last_proc.cmdline())
+            print("Switched to '{}' with PID: {}".format(cls[1], pid))
+           
+            self.update_last_window()
+
+    def get_window(self, window_id):
+        return self.display.create_resource_object('window', window_id)
+
+    def get_window_name(self, window):
+        name = None
+        while window:
+            cls = window.get_wm_class()
+            name = window.get_wm_name()
+            if not cls:
+                window = window.query_tree().parent
+            else:
+                break
+        return name, cls
+
+    def get_window_pid(self, window):
+        atom = self.display.get_atom("_NET_WM_PID")
+        pid_property = window.get_full_property(atom, X.AnyPropertyType)
+        if pid_property:
+            pid = pid_property.value[-1]
+            return pid
+        else:
+            raise Exception("pid_property was None")
+
+    def get_current_pid(self):
+        return self.get_window_pid(active_window)
+
+    @staticmethod
+    def process_by_pid(pid):
+        return psutil.Process(int(pid))
+        logging.debug("Got process: " + str(p.cmdline()))
+        return p
+
+
+class Logger():
+    """Listens to watchers and logs activities"""
+
+    def __init__(self):
+        self.watchers = []
+
+    def add_watcher(self, watcher):
+        """Start listening to watchers here"""
+        if not isinstance(watcher, Watcher):
+            raise TypeError("{} is not a Watcher".format(watcher))
+        watcher._add_logger(self)
+        self.watchers.append(watcher)
 
 
 class Tests(unittest.TestCase):
@@ -114,7 +199,6 @@ class Tests(unittest.TestCase):
 
     def test_xlib(self):
         pass
-    
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
@@ -129,4 +213,8 @@ if __name__ == "__main__":
         else:
             print("Unknown command '{}'".format(cmd))
     else:
-        main()
+        logger = Logger()
+
+        x11watcher = X11Watcher()
+        logger.add_watcher(x11watcher)
+        x11watcher.start()
