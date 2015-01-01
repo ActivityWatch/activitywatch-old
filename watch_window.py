@@ -28,11 +28,8 @@ from Xlib import X, Xatom
 
 import pyzenobase
 
-###########
-# Globals #
-###########
 
-# For Linux/X11
+WATCH_INTERVAL = 1.0
 
 
 class Activity(dict):
@@ -70,10 +67,9 @@ class Watcher(threading.Thread):
     def run(self):
         raise NotImplementedError("Watchers must implement the run method")
 
-    def notify_change(self):
+    def add_activity(self, activity):
         for logger in self.loggers:
-            # TODO
-            pass
+            logger.add_activity(activity)
 
 
 class X11Watcher(Watcher):
@@ -117,10 +113,7 @@ class X11Watcher(Watcher):
         self.update_last_window()
 
         while True:
-            sleep(1.0)
-
-            # Window for current cycle
-            # TODO: Replace with 'update_active_window' method?
+            sleep(WATCH_INTERVAL)
             self.update_active_window()
             
             if self.last_window.id == self.active_window.id:
@@ -132,17 +125,15 @@ class X11Watcher(Watcher):
             last_name, last_cls = self.get_window_name(self.last_window)
             name, cls = self.get_window_name(self.active_window)
 
-            # New window has been focused
-            # Add actions such as log to local db here
-
             last_proc = self.process_by_pid(last_pid)
             #print("\t{}".format(proc.cmdline()))
 
             # Creation of the activity that just ended
             # TODO: Create activity upon exit
             activity = Activity(last_cls[1], self.last_selected_at, datetime.now(), cmd=last_proc.cmdline())
+            self.add_activity(activity)
+
             print("Switched to '{}' with PID: {}".format(cls[1], pid))
-           
             self.update_last_window()
 
     def get_window(self, window_id):
@@ -178,11 +169,29 @@ class X11Watcher(Watcher):
         return p
 
 
-class Logger():
+class Logger(threading.Thread):
     """Listens to watchers and logs activities"""
 
     def __init__(self):
+        threading.Thread.__init__(self)
         self.watchers = []
+
+        # Must be thread-safe
+        self._activities = []
+        self._activities_lock = threading.Lock()
+
+    def run(self):
+        raise NotImplementedError("run method must be implemented in Logger subclass")
+
+    def add_activity(self, activity):
+        with self._activities_lock:
+            self._activities.append(activity)
+
+    def flush_activities(self):
+        with self._activities_lock:
+            activities = self._activities
+            self._activities = []
+        return activities
 
     def add_watcher(self, watcher):
         """Start listening to watchers here"""
@@ -190,6 +199,40 @@ class Logger():
             raise TypeError("{} is not a Watcher".format(watcher))
         watcher._add_logger(self)
         self.watchers.append(watcher)
+
+
+class ZenobaseLogger(Logger):
+    def __init__(self):
+        Logger.__init__(self)
+
+    def run(self):
+        while True:
+            sleep(20.0)
+            activities = self.flush_activities()
+            # TODO: Upload to Zenobase
+
+
+class CSVLogger(Logger):
+    def __init__(self):
+        Logger.__init__(self)
+
+    def run(self):
+        while True:
+            sleep(1.0)
+            activities = self.flush_activities()
+            # TODO: Log to CSV
+
+
+class StdOutLogger(Logger):
+    def __init__(self):
+        Logger.__init__(self)
+
+    def run(self):
+        while True:
+            sleep(0.1)
+            activities = self.flush_activities()
+            for activity in activities:
+                print(activity)
 
 
 class Tests(unittest.TestCase):
@@ -208,13 +251,17 @@ if __name__ == "__main__":
         del sys.argv[1]
         if cmd == "test":
             unittest.main()
-        elif cmd == "":
-            pass
         else:
             print("Unknown command '{}'".format(cmd))
     else:
-        logger = Logger()
-
         x11watcher = X11Watcher()
-        logger.add_watcher(x11watcher)
+        
+        zenobaselogger = ZenobaseLogger()
+        stdoutlogger = StdOutLogger()
+
+        zenobaselogger.add_watcher(x11watcher)
+        stdoutlogger.add_watcher(x11watcher)
+
+        zenobaselogger.start()
+        stdoutlogger.start()
         x11watcher.start()
