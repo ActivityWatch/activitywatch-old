@@ -1,3 +1,4 @@
 virtualenv
 *.pyc
 *.swp
+settings.json
