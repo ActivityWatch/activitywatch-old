@@ -6,6 +6,7 @@ import subprocess
 import unittest
 import logging
 import threading
+import json
 
 import time
 from time import sleep
@@ -24,6 +25,21 @@ class Tests(unittest.TestCase):
     def test_xlib(self):
         pass
 
+class Settings(dict):
+    def __init__(self):
+        dict.__init__(self)
+        filepath = os.path.realpath(__file__)
+        srcpath = os.path.dirname(filepath)
+        rootpath = os.path.dirname(srcpath)
+        print(rootpath)
+        with open(rootpath + "/settings.json") as f:
+            self.update(json.loads(f.read()))
+
+        print("Loaded settings:")
+        print("  Location: {}".format(self["location"]))
+        print("  Tags: {}".format(self["tags"]))
+        print("")
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
@@ -35,6 +51,8 @@ if __name__ == "__main__":
         else:
             print("Unknown command '{}'".format(cmd))
     else:
+        settings = Settings()
+
         x11watcher = X11Watcher()
         
         zenobaselogger = ZenobaseLogger()
