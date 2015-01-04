@@ -1,17 +1,11 @@
 #!/usr/bin/python3
 
-import logging
-import threading
-import csv
-
-import time
 from time import sleep
-
-from datetime import datetime
 
 import pyzenobase
 
 from base import Logger
+
 
 class ZenobaseLogger(Logger):
     def __init__(self):
@@ -19,8 +13,10 @@ class ZenobaseLogger(Logger):
 
     def run(self):
         while True:
-            sleep(20.0)
+            # Upload every 30 seconds
+            sleep(30.0)
             activities = self.flush_activities()
+            zenobase_events = map(lambda x: x.to_zenobase_event(), activities)
             # TODO: Upload to Zenobase
 
 

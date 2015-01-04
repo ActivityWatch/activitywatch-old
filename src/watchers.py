@@ -1,9 +1,5 @@
 #!/usr/bin/python3
 
-import logging
-import threading
-
-import time
 from time import sleep
 
 from datetime import datetime, timedelta
@@ -17,8 +13,7 @@ from Xlib import X, Xatom
 from pymouse import PyMouse
 from pykeyboard import PyKeyboard
 
-from base import *
-from loggers import *
+from base import Watcher, Activity
 
 WATCH_INTERVAL = 0.5
 
@@ -51,7 +46,17 @@ class X11Watcher(Watcher):
         atom = self.display.get_atom("_NET_ACTIVE_WINDOW")
         w = self.screen.root.get_full_property(atom, X.AnyPropertyType)
         w_id = w.value[-1]
-        self._active_window = self.get_window(w_id)
+        window = self.get_window(w_id)
+
+        try:
+            self.get_window_pid(window)
+        except Xlib.error.BadWindow:
+            print("Error while updating active window, trying again.")
+            sleep(0.1)
+            self.update_active_window()
+            return
+
+        self._active_window = window
 
     def run(self):
         self.update_active_window()
@@ -59,6 +64,7 @@ class X11Watcher(Watcher):
         
         name, cls = self.get_window_name(window)
         pid = self.get_window_pid(window)
+        process = self.process_by_pid(pid)
         print("First focus is '{}' with PID: {}".format(cls[1], pid))
 
         self.update_last_window()
@@ -70,17 +76,18 @@ class X11Watcher(Watcher):
             if self.last_window.id == self.active_window.id:
                 continue
 
-            last_pid = self.get_window_pid(self.last_window)
+            last_pid = pid
             pid = self.get_window_pid(self.active_window)
 
-            last_name, last_cls = self.get_window_name(self.last_window)
+            last_name, last_cls = name, cls
             name, cls = self.get_window_name(self.active_window)
 
-            last_proc = self.process_by_pid(last_pid)
+            last_process = process
+            process = self.process_by_pid(last_pid)
 
             # Creation of the activity that just ended
             # TODO: Create activity upon exit
-            activity = Activity(last_cls[1], self.last_selected_at, datetime.now(), cmd=last_proc.cmdline())
+            activity = Activity(last_cls[1], self.last_selected_at, datetime.now(), cmd=last_process.cmdline())
             self.add_activity(activity)
 
             print("Switched to '{}' with PID: {}".format(cls[1], pid))
@@ -104,13 +111,10 @@ class X11Watcher(Watcher):
         atom = self.display.get_atom("_NET_WM_PID")
         pid_property = window.get_full_property(atom, X.AnyPropertyType)
         if pid_property:
-            try:
-                pid = pid_property.value[-1]
-                return pid
-            except Xlib.error.BadWindow:
-                print("Error occurred while trying to get pid_property")
-                return None
+            pid = pid_property.value[-1]
+            return pid
         else:
+            # TODO: Needed?
             raise Exception("pid_property was None")
 
     def get_current_pid(self):
@@ -119,8 +123,6 @@ class X11Watcher(Watcher):
     @staticmethod
     def process_by_pid(pid):
         return psutil.Process(int(pid))
-        logging.debug("Got process: " + str(p.cmdline()))
-        return p
 
 
 class AFKWatcher(Watcher):
@@ -168,15 +170,16 @@ class AFKWatcher(Watcher):
 
             passed_time = self.now - self.last_activity
             passed_afk = passed_time > timedelta(seconds=5)
+
+            # If mouse moved
             if position != last_position:
-                #print("New position")
                 if self.is_afk and not passed_afk:
                     self.is_afk = False
 
                 self.last_activity = self.now
                 last_position = position
+            # If mouse didn't move
             else:
-                #print("No new position")
                 if not self.is_afk and passed_afk:
                     self.is_afk = True
 

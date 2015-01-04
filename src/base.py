@@ -3,6 +3,8 @@
 import threading
 from datetime import datetime
 
+import pyzenobase
+
 
 class Activity(dict):                                                                    
     def __init__(self, tags: "string or string[]", started_at, ended_at, **kwargs):
@@ -29,8 +31,11 @@ class Activity(dict):
         print("")
 
     def to_zenobase_event(self):
-        # TODO
-        pass
+        # TODO: Add misc fields into note field
+        data = {"tag": self["tags"],
+                "timestamp": [self["start"], self["end"]],
+                "duration": self["duration"]}
+        return pyzenobase.ZenobaseEvent(data)
 
 
 class Logger(threading.Thread):
@@ -48,6 +53,8 @@ class Logger(threading.Thread):
         raise NotImplementedError("run method must be implemented in Logger subclass")
 
     def add_activity(self, activity):
+        if not isinstance(activity, Activity):
+            raise TypeError("{} is not an Activity".format(activity))
         with self._activities_lock:
             self._activities.append(activity)
 

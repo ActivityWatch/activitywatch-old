@@ -1,9 +1,10 @@
 #!/usr/bin/python3
+import logging
 
 import os
 import sys
-import unittest
 import json
+import unittest
 
 from loggers import *
 from watchers import *
