@@ -1,35 +1,36 @@
 #!/usr/bin/python3
 
-import os
-import sys
-import subprocess
-import unittest
-import logging
 import threading
-
-import time
-from time import sleep
-
 from datetime import datetime
 
 
 class Activity(dict):                                                                    
-    def __init__(self, window_class, started_at, ended_at, cmd=None):                    
-        dict.__init__(self)                                                              
-        self["window_class"] = window_class                                              
-        if cmd:                                                                          
-            cmd = list(filter(lambda s: s[0] != "-", cmd))                               
-            self["cmd"] = cmd                                                            
-        self["start"] = started_at                                                       
-        self["end"] = ended_at                                                           
-        self["duration"] = ended_at - started_at                                         
-                                                                                         
-        print("\nLogged activity '{}':".format(window_class))                            
-        print("  Command: {}\n  Window selected for: {}\n".format(cmd, self["duration"]))
-                                                                                         
-    def to_zenobase_event(self):                                                         
-        # TODO                                                                           
-        pass                                                                             
+    def __init__(self, tags: "string or string[]", started_at, ended_at, **kwargs):
+        dict.__init__(self)
+        self["tags"] = tags
+        if "cmd" in kwargs:
+            # TODO: Keep?
+            cmd = kwargs.pop("cmd")
+            cmd = list(filter(lambda s: s[0] != "-", cmd))
+            self["cmd"] = cmd
+        self["start"] = started_at
+        self["end"] = ended_at
+        self["duration"] = ended_at - started_at
+
+        self.update(kwargs)
+
+        print("")
+        print("Logged activity '{}':".format(tags))
+        print("  Started: {}".format(self["start"]))
+        print("  Ended: {}".format(self["end"]))
+        print("  Duration: {}".format(self["duration"]))
+        if "cmd" in self:
+            print("  Command: {}".format(self["cmd"]))
+        print("")
+
+    def to_zenobase_event(self):
+        # TODO
+        pass
 
 
 class Logger(threading.Thread):

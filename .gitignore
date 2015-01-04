@@ -1,4 +1,4 @@
 virtualenv
 *.pyc
 *.swp
-settings.json
+.idea

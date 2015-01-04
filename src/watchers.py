@@ -6,7 +6,7 @@ import threading
 import time
 from time import sleep
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import psutil
 
@@ -14,10 +14,13 @@ import Xlib
 import Xlib.display
 from Xlib import X, Xatom
 
+from pymouse import PyMouse
+from pykeyboard import PyKeyboard
+
 from base import *
 from loggers import *
 
-WATCH_INTERVAL = 1.0
+WATCH_INTERVAL = 0.5
 
 
 class X11Watcher(Watcher):
@@ -101,16 +104,79 @@ class X11Watcher(Watcher):
         atom = self.display.get_atom("_NET_WM_PID")
         pid_property = window.get_full_property(atom, X.AnyPropertyType)
         if pid_property:
-            pid = pid_property.value[-1]
-            return pid
+            try:
+                pid = pid_property.value[-1]
+                return pid
+            except Xlib.error.BadWindow:
+                print("Error occurred while trying to get pid_property")
+                return None
         else:
             raise Exception("pid_property was None")
 
     def get_current_pid(self):
-        return self.get_window_pid(active_window)
+        return self.get_window_pid(self.active_window)
 
     @staticmethod
     def process_by_pid(pid):
         return psutil.Process(int(pid))
         logging.debug("Got process: " + str(p.cmdline()))
         return p
+
+
+class AFKWatcher(Watcher):
+    """Watches for keyboard & mouse activity and creates (not-)AFK events accordingly"""
+
+    def __init__(self):
+        # TODO: Use MouseEvent and KeyboardEvent instead
+        # TODO: Detect keyboard usage
+        # TODO: (nice to have) Xbox 360 controller usage
+        Watcher.__init__(self)
+        self.mouse = PyMouse()
+        self.keyboard = PyKeyboard()
+
+        self.last_activity = None
+        self.now = None
+
+        self._is_afk = True
+        self.afk_changed = datetime.now()
+
+    @property
+    def is_afk(self):
+        return self._is_afk
+
+    @is_afk.setter
+    def is_afk(self, boolean):
+        if self._is_afk == boolean:
+            print("Tried to set to what already was")
+            return
+
+        self.add_activity(Activity([("non-" if boolean else "")+"AFK"], self.afk_changed, self.now))
+
+        self._is_afk = boolean
+        self.afk_changed = datetime.now()
+        print("Is " + ("now" if boolean else "no longer") + " AFK")
+
+    def run(self):
+        self.last_activity = datetime.now()
+        last_position = None
+
+        while True:
+            sleep(0.1)
+
+            self.now = datetime.now()
+            position = self.mouse.position()
+
+            passed_time = self.now - self.last_activity
+            passed_afk = passed_time > timedelta(seconds=5)
+            if position != last_position:
+                #print("New position")
+                if self.is_afk and not passed_afk:
+                    self.is_afk = False
+
+                self.last_activity = self.now
+                last_position = position
+            else:
+                #print("No new position")
+                if not self.is_afk and passed_afk:
+                    self.is_afk = True
+

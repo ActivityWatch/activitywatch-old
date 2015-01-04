@@ -2,28 +2,12 @@
 
 import os
 import sys
-import subprocess
 import unittest
-import logging
-import threading
 import json
-
-import time
-from time import sleep
-
-from datetime import datetime
 
 from loggers import *
 from watchers import *
 
-
-class Tests(unittest.TestCase):
-    def test_self(self):
-        process = process_by_pid(os.getpid())
-        print(process)
-
-    def test_xlib(self):
-        pass
 
 class Settings(dict):
     def __init__(self):
