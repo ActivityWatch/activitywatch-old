@@ -7,17 +7,16 @@
 
 Logs the time spent by the user in different tasks on the computer.
 
-Should log the system and how/when the user uses it.
-Then upload to [Zenobase](http://zenobase.com/) or export to JSON (in Zerobase format).
-
 
 ## About
 
 #### What it does
-Logs every activity on a computer and saves it to a JSON file or uploads it to Zenobase.
+Logs every activity on a computer and saves it to a JSON file or uploads it to Zenobase. It is designed to be easily extendable. 
 
 #### Why this is important
-We think we need logs on our lives, so that we know what we said, did and how much time we spent doing it. Not just so we know, but so that we can improve upon it.
+We think we need logs on our lives, so that we know what we said, did, how well we did it and how much time we spent doing it. Not just so we know, but so that we can improve upon it.
+
+There are already services doing something similar such as [RescueTime](https://www.rescuetime.com/), [Time Doctor](http://www.timedoctor.com/) and [ManicTime](http://www.manictime.com/). But they are often closed source, costly, lack mobile support, buggy and feature incomplete. For a programmer closed source is very frustrating as it prevents one from solving the imperfections of existing solutions. So this is an attempt to start from scratch with the intention to make what came before obsolete, with the hopes that what might one day make this obsolete has taken advantage of our code and published it under a free license so others may follow.
 
 
 ## Architecture
@@ -29,7 +28,7 @@ We think we need logs on our lives, so that we know what we said, did and how mu
 #### Watchers
 These are the (planned) official watchers.
 
- - **AFKWatcher** Checks if user if AFK by monitoring keyboard and mouse)
+ - **AFKWatcher** Checks if user if AFK by monitoring keyboard and mouse
  - **X11Watcher** - Watches current window (Linux/X11)
  - **WindowsWatcher** - Watches current window (Windows)
  - **OSXWatcher** - Watches current window (OS X)
@@ -80,6 +79,9 @@ Extensions may include extra watchers and loggers. Such as ChromeWatcher or FTPL
  - Log tmux activity (Use `tmux server-info` and others to get data)
  - Log console commands
  - Android & iOS support
+
+## License
+ActivityWatch is not yet published under a license, but is likely to be published under the GPLv3 in the future.
 
 -----------------
 
