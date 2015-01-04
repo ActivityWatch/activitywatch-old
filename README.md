@@ -50,6 +50,14 @@ These are the official loggers.
  - **JSONLogger** - Logs to JSON file
  - **ZenobaseLogger** - Logs to Zenobase
 
+### Filters
+ - Filters act as loggers/listeners and watchers/reporters.
+ - Filters could be adding labels by some form of clustering
+ - It should be possible to filters away all idle/afk entries before export (or not create them to begin with)
+ - Zenobase viewer buckets could be used as external filters
+
+Official filters:
+ - **AFKFilter** filters away all events which occurred when the user was AFK. Events which the user was partially AFK from has only their AFK time cut away.
 
 #### Extensions
 Core **EventWatch** package should only include basic loggers (which?), no event handlers.
@@ -58,11 +66,6 @@ Standard **ActivityWatch** package should include core and X11Watcher/WindowsWat
 
 Extensions may include extra watchers and loggers. Such as ChromeWatcher
 
-
-### Filters
- - Filters could be adding labels by some form of clustering
- - It should be possible to filters away all idle/afk entries before export (or not create them to begin with)
- - Zenobase viewer buckets could be used
 
 ### Software design
  - Should support different OS's (Linux, Windows, Android), use the strategy pattern for (get (page title and name of executable)).

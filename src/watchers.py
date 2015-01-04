@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 from time import sleep
 
 from datetime import datetime, timedelta
@@ -83,7 +81,7 @@ class X11Watcher(Watcher):
             name, cls = self.get_window_name(self.active_window)
 
             last_process = process
-            process = self.process_by_pid(last_pid)
+            process = self.process_by_pid(pid)
 
             # Creation of the activity that just ended
             # TODO: Create activity upon exit

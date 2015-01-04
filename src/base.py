@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+import json
 
 import threading
 from datetime import datetime
@@ -17,7 +17,6 @@ class Activity(dict):
             self["cmd"] = cmd
         self["start"] = started_at
         self["end"] = ended_at
-        self["duration"] = ended_at - started_at
 
         self.update(kwargs)
 
@@ -25,17 +24,30 @@ class Activity(dict):
         print("Logged activity '{}':".format(tags))
         print("  Started: {}".format(self["start"]))
         print("  Ended: {}".format(self["end"]))
-        print("  Duration: {}".format(self["duration"]))
+        print("  Duration: {}".format(self.duration()))
         if "cmd" in self:
             print("  Command: {}".format(self["cmd"]))
         print("")
+
+    def duration(self):
+        return self["end"] - self["start"]
 
     def to_zenobase_event(self):
         # TODO: Add misc fields into note field
         data = {"tag": self["tags"],
                 "timestamp": [self["start"], self["end"]],
-                "duration": self["duration"]}
+                "duration": self.duration().total_seconds()}
         return pyzenobase.ZenobaseEvent(data)
+
+    def to_json_dict(self):
+        data = self.copy()
+        data["start"] = data["start"].isoformat()
+        data["end"] = data["end"].isoformat()
+        return data
+
+    def to_json(self):
+        data = self.to_json_dict()
+        return json.dumps(data)
 
 
 class Logger(threading.Thread):

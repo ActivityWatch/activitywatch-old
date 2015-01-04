@@ -1,4 +1,18 @@
 {
-    "location": [55.711082, 13.210406],
-    "tags": []
+    "location": [55.705063, 13.212830],
+    "tags": ["home"],
+    "loggers": {
+        "zenobase": {
+            "bucket": "ActivityWatch",
+            "username": "FILL_ME_IN",
+            "password": "FILL_ME_IN"
+        },
+        "json": {
+            "filename": "../output.json"
+        }
+    },
+    "watchers": {
+        "x11": {},
+        "afk": {}
+    }
 }

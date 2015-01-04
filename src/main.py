@@ -1,29 +1,10 @@
-#!/usr/bin/python3
-import logging
-
-import os
 import sys
-import json
 import unittest
 
 from loggers import *
+from settings import Settings
 from watchers import *
 
-
-class Settings(dict):
-    def __init__(self):
-        dict.__init__(self)
-        filepath = os.path.realpath(__file__)
-        srcpath = os.path.dirname(filepath)
-        rootpath = os.path.dirname(srcpath)
-        print(rootpath)
-        with open(rootpath + "/settings.json") as f:
-            self.update(json.loads(f.read()))
-
-        print("Loaded settings:")
-        print("  Location: {}".format(self["location"]))
-        print("  Tags: {}".format(self["tags"]))
-        print("")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
@@ -38,14 +19,20 @@ if __name__ == "__main__":
     else:
         settings = Settings()
 
-        x11watcher = X11Watcher()
-        
+        # Create Loggers
         zenobaselogger = ZenobaseLogger()
-        stdoutlogger = StdOutLogger()
+        jsonlogger = JSONLogger()
 
+        # Create Watchers
+        x11watcher = X11Watcher()
+
+        # Add Watchers to loggers
         zenobaselogger.add_watcher(x11watcher)
-        stdoutlogger.add_watcher(x11watcher)
+        jsonlogger.add_watcher(x11watcher)
 
+        # Start Loggers
         zenobaselogger.start()
-        stdoutlogger.start()
+        jsonlogger.start()
+
+        # Start Watchers
         x11watcher.start()

@@ -27,3 +27,11 @@ class LoggerWatcherTest(unittest.TestCase):
 
         activities = logger.flush_activities()
         self.assertTrue(len(activities) == 0)
+
+
+class ActivityTest(unittest.TestCase):
+    def test_to_zenobase(self):
+        TAG = "something"
+        activity = Activity(TAG, started_at=datetime.now(), ended_at=datetime.now())
+        event = activity.to_zenobase_event()
+        self.assertTrue(event["tag"] == TAG)
