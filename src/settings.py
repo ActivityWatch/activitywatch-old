@@ -18,6 +18,8 @@ class Singleton:
 @Singleton
 class Settings(dict):
     def __init__(self):
+        # TODO: If settingsfile doesn't exist, create one from default settings file
+        # TODO: Store in users application data folder
         dict.__init__(self)
         filepath = os.path.realpath(__file__)
         srcpath = os.path.dirname(filepath)
