@@ -32,6 +32,33 @@ Should also perhaps also contain the following metadata
  - Date of export
  - User
 
+### Watchers
+These are the (planned) official watchers.
+
+ - **AFKWatcher** Checks if user if AFK by monitoring keyboard and mouse)
+ - **X11Watcher** - Watches current window (Linux/X11)
+ - **WindowsWatcher** - Watches current window (Windows)
+ - **OSXWatcher** - Watches current window (OS X)
+ - **RESTWatcher** - Can be used to log activities from outside the application process (Watcher with REST-API interface)
+ - **ChromeWatcher** - Watches the current tab (Uses the RESTWatcher)
+ - **FirefoxWatcher** - Watches the current tab (Uses the RESTWatcher, *Will only be done if there is enough interest*)
+
+### Loggers
+These are the official loggers.
+
+ - **StdOutLogger** - Logs to stdout
+ - **JSONLogger** - Logs to JSON file
+ - **ZenobaseLogger** - Logs to Zenobase
+
+
+#### Extensions
+Core **EventWatch** package should only include basic loggers (which?), no event handlers.
+
+Standard **ActivityWatch** package should include core and X11Watcher/WindowsWatcher/OSXWatcher.
+
+Extensions may include extra watchers and loggers. Such as ChromeWatcher
+
+
 ### Filters
  - Filters could be adding labels by some form of clustering
  - It should be possible to filters away all idle/afk entries before export (or not create them to begin with)
