@@ -1,12 +1,12 @@
 # ActivityWatch
-*A complete RescueTime replacement, for the open world with Zenobase.*
+*A complete RescueTime replacement, for the open world with [Zenobase](http://zenobase.com).*
 
 **NOTE: UNDER DEVELOPMENT**
 
 Logs the time spent by the user in different tasks on the computer.
 
 Should log the system and how/when the user uses it.
-Then upload to Zenobase or export to JSON (in Zerobase format).
+Then upload to [Zenobase](http://zenobase.com/) or export to JSON (in Zerobase format).
 
 
 ## What it does
@@ -18,7 +18,7 @@ We think we need logs on our lives, so that we know what we said, did and how mu
 
 
 ## Output datastructure
-Each item has the following data
+Each item has the following data:
  - Page title
  - Path of executable (including name of executable) with timestamp as well as label if idle/afk.
  - Optional metadata
@@ -89,13 +89,7 @@ Extensions may include extra watchers and loggers. Such as ChromeWatcher
     - Could this be done by checking for audio + if window title indicated media?
  - Log tmux activity (Use `tmux server-info` and others to get data)
  - Log console commands
-
-
-## Name propositions
- - ActivityWatch
-    - It could do more than that, but perhaps it shouldn't so chosen for now
- - System Logger (lacks the focus on activity monitoring)
- - Computer Time (taken by [these guys](http://www.softwaretime.com/computertime/))
+ - Android & iOS support
 
 -----------------
 
