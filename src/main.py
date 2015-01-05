@@ -7,7 +7,7 @@ from watchers import *
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s from %(threadName)s: %(message)s")
 
     if len(sys.argv) > 1:
         cmd = sys.argv[1]
@@ -25,10 +25,13 @@ if __name__ == "__main__":
 
         # Create Watchers
         x11watcher = X11Watcher()
+        afkwatcher = AFKWatcher()
 
         # Add Watchers to loggers
         zenobaselogger.add_watcher(x11watcher)
         jsonlogger.add_watcher(x11watcher)
+        zenobaselogger.add_watcher(afkwatcher)
+        jsonlogger.add_watcher(afkwatcher)
 
         # Start Loggers
         zenobaselogger.start()
@@ -36,3 +39,4 @@ if __name__ == "__main__":
 
         # Start Watchers
         x11watcher.start()
+        afkwatcher.start()

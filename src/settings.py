@@ -1,7 +1,6 @@
 import json
 import os
-
-_instance = None
+import logging
 
 
 class Singleton:
@@ -27,14 +26,11 @@ class Settings(dict):
         with open(rootpath + "/settings.json") as f:
             self.update(json.loads(f.read()))
 
-        print("Loaded settings:")
-        print("  Location: {}".format(self["location"]))
-        print("  Tags: {}".format(self["tags"]))
-        print("")
+        msg = "Loaded settings"
+        msg += "  Location: {}".format(self["location"])
+        msg += "  Tags: {}".format(self["tags"])
+        logging.info(msg)
 
 
 class SettingsException(Exception):
     pass
-
-
-assert Settings() is Settings()

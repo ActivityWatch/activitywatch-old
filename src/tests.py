@@ -2,6 +2,7 @@ import unittest
 from datetime import datetime, timedelta
 
 from base import Watcher, Activity, Logger
+from settings import Settings
 
 
 class MockWatcher(Watcher):
@@ -35,3 +36,10 @@ class ActivityTest(unittest.TestCase):
         activity = Activity(TAG, started_at=datetime.now(), ended_at=datetime.now())
         event = activity.to_zenobase_event()
         self.assertTrue(event["tag"] == TAG)
+
+
+class SettingsTest(unittest.TestCase):
+    def test_instance(self):
+        self.assertIs(Settings(), Settings())
+
+

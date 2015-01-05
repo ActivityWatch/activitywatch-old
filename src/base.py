@@ -1,4 +1,5 @@
 import json
+import logging
 
 import threading
 from datetime import datetime
@@ -20,14 +21,14 @@ class Activity(dict):
 
         self.update(kwargs)
 
-        print("")
-        print("Logged activity '{}':".format(tags))
-        print("  Started: {}".format(self["start"]))
-        print("  Ended: {}".format(self["end"]))
-        print("  Duration: {}".format(self.duration()))
+        msg = ""
+        msg += "Logged activity '{}':".format(tags)
+        msg += "  Started: {}".format(self["start"])
+        msg += "  Ended: {}".format(self["end"])
+        msg += "  Duration: {}".format(self.duration())
         if "cmd" in self:
-            print("  Command: {}".format(self["cmd"]))
-        print("")
+            msg += "  Command: {}".format(self["cmd"])
+        logging.debug(msg)
 
     def duration(self):
         return self["end"] - self["start"]
@@ -54,7 +55,7 @@ class Logger(threading.Thread):
     """Listens to watchers and logs activities"""
 
     def __init__(self):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, name=self.__class__.__name__)
         self.watchers = []
 
         # Must be thread-safe
@@ -88,7 +89,7 @@ class Watcher(threading.Thread):
     """Base class for a watcher"""
 
     def __init__(self):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, name=self.__class__.__name__)
         self.loggers = []
 
     def _add_logger(self, logger):

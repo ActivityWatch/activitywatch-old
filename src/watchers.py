@@ -1,5 +1,5 @@
 from time import sleep
-
+import logging
 from datetime import datetime, timedelta
 
 import psutil
@@ -13,7 +13,7 @@ from pykeyboard import PyKeyboard
 
 from base import Watcher, Activity
 
-WATCH_INTERVAL = 0.5
+WATCH_INTERVAL = 0.1
 
 
 class X11Watcher(Watcher):
@@ -28,68 +28,95 @@ class X11Watcher(Watcher):
         self._last_window = None
         self._active_window = None
 
+        self.window_name = None
+        self.pid = None
+        self.cls = None
+        self.process = None
+        self.selected_at = None
+
+        self.last_name = None
+        self.last_pid = None
+        self.last_cls = None
+        self.last_process = None
+        self.last_selected_at = None
+
     @property
     def last_window(self):
         return self._last_window
 
     def update_last_window(self):
-        self.last_selected_at = datetime.now()
         self._last_window = self.active_window
+        self.last_selected_at = self.selected_at
+        self.last_pid = self.pid
+        self.last_name, self.last_cls = self.window_name, self.cls
+        self.last_process = self.process
 
     @property
     def active_window(self):
         return self._active_window
 
-    def update_active_window(self):
+    def update_active_window(self) -> bool:
+        """Updates the active window and stores its properties
+
+        Returns True if changed, False if was unchanged"""
+
         atom = self.display.get_atom("_NET_ACTIVE_WINDOW")
-        w = self.screen.root.get_full_property(atom, X.AnyPropertyType)
-        w_id = w.value[-1]
-        window = self.get_window(w_id)
+        window_prop = self.screen.root.get_full_property(atom, X.AnyPropertyType)
+        window_id = window_prop.value[-1]
+        window = self.get_window(window_id)
+
+        if not self.last_window is None:
+            # Was not the first window
+            if self.last_window.id == window_id:
+                # If window was same as last
+                return False
 
         try:
             self.get_window_pid(window)
         except Xlib.error.BadWindow:
-            print("Error while updating active window, trying again.")
+            logging.error("Error while updating active window, trying again.")
             sleep(0.1)
             self.update_active_window()
             return
 
+        self.pid = self.get_window_pid(window)
+        self.window_name, self.cls = self.get_window_name(window)
+        self.process = self.process_by_pid(self.pid)
+        self.cmd = self.process.cmdline()
+        self.selected_at = datetime.now()
+
         self._active_window = window
+
+        return True
 
     def run(self):
         self.update_active_window()
-        window = self.active_window
-        
-        name, cls = self.get_window_name(window)
-        pid = self.get_window_pid(window)
-        process = self.process_by_pid(pid)
-        print("First focus is '{}' with PID: {}".format(cls[1], pid))
+        logging.info("First focus is '{}'".format(self.window_name))
 
         self.update_last_window()
 
         while True:
             sleep(WATCH_INTERVAL)
-            self.update_active_window()
-            
-            if self.last_window.id == self.active_window.id:
-                continue
+            try:
+                self.loop()
+            except Exception as e:
+                logging.error("Exception was thrown while running loop: '{}', trying again.".format(e))
+                self.loop()
 
-            last_pid = pid
-            pid = self.get_window_pid(self.active_window)
+    def loop(self):
+        changed = self.update_active_window()
+        if not changed:
+            return
 
-            last_name, last_cls = name, cls
-            name, cls = self.get_window_name(self.active_window)
+        # Creation of the activity that just ended
+        # TODO: Create activity upon exit
+        activity = Activity(self.last_cls, self.last_selected_at, datetime.now(), cmd=self.cmd)
+        self.add_activity(activity)
 
-            last_process = process
-            process = self.process_by_pid(pid)
+        logging.info("Switched to '{}' with PID: {}".format(self.cls, self.pid))
 
-            # Creation of the activity that just ended
-            # TODO: Create activity upon exit
-            activity = Activity(last_cls[1], self.last_selected_at, datetime.now(), cmd=last_process.cmdline())
-            self.add_activity(activity)
+        self.update_last_window()
 
-            print("Switched to '{}' with PID: {}".format(cls[1], pid))
-            self.update_last_window()
 
     def get_window(self, window_id):
         return self.display.create_resource_object('window', window_id)
@@ -147,14 +174,14 @@ class AFKWatcher(Watcher):
     @is_afk.setter
     def is_afk(self, boolean):
         if self._is_afk == boolean:
-            print("Tried to set to what already was")
+            logging.warning("Tried to set to what already was")
             return
 
         self.add_activity(Activity([("non-" if boolean else "")+"AFK"], self.afk_changed, self.now))
 
         self._is_afk = boolean
         self.afk_changed = datetime.now()
-        print("Is " + ("now" if boolean else "no longer") + " AFK")
+        logging.info("Is " + ("now" if boolean else "no longer") + " AFK")
 
     def run(self):
         self.last_activity = datetime.now()
