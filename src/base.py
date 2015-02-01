@@ -57,6 +57,8 @@ class Agent(threading.Thread):
     def __init__(self, type, name):
         threading.Thread.__init__(self, name=self.__class__.__name__)
 
+        self.logger = logging.Logger(self.__class__.__name__)
+
         settings = Settings()
         if type+"s" in settings and name in settings[type+"s"]:
             self.settings = settings[type+"s"][name]

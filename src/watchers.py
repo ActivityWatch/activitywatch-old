@@ -1,5 +1,4 @@
 from time import sleep
-import logging
 from datetime import datetime, timedelta
 
 import psutil
@@ -8,12 +7,10 @@ import Xlib
 import Xlib.display
 from Xlib import X, Xatom
 
-from pymouse import PyMouse
-from pykeyboard import PyKeyboard
+from pymouse import PyMouse, PyMouseEvent
+from pykeyboard import PyKeyboard, PyKeyboardEvent
 
 from base import Watcher, Activity
-
-WATCH_INTERVAL = 0.1
 
 
 class X11Watcher(Watcher):
@@ -74,7 +71,7 @@ class X11Watcher(Watcher):
         try:
             self.get_window_pid(window)
         except Xlib.error.BadWindow:
-            logging.error("Error while updating active window, trying again.")
+            self.logger.error("Error while updating active window, trying again.")
             sleep(0.1)
             return False
 
@@ -93,16 +90,17 @@ class X11Watcher(Watcher):
         while not success:
             success = self.update_active_window()
 
-        logging.info("First focus is '{}'".format(self.window_name))
+        self.logger.info("First focus is '{}'".format(self.window_name))
 
         self.update_last_window()
 
         while True:
-            sleep(WATCH_INTERVAL)
+            # TODO: Make sleep interval a setting
+            sleep(0.1)
             try:
                 self.loop()
             except Exception as e:
-                logging.error("Exception was thrown while running loop: '{}', trying again.".format(e))
+                self.logger.error("Exception was thrown while running loop: '{}', trying again.".format(e))
                 continue
 
     def loop(self):
@@ -115,7 +113,7 @@ class X11Watcher(Watcher):
         activity = Activity(self.last_cls, self.last_selected_at, datetime.now(), cmd=self.cmd)
         self.add_activity(activity)
 
-        logging.info("Switched to '{}' with PID: {}".format(self.cls, self.pid))
+        self.logger.info("Switched to '{}' with PID: {}".format(self.cls, self.pid))
 
         self.update_last_window()
 
@@ -156,8 +154,6 @@ class AFKWatcher(Watcher):
     """Watches for keyboard & mouse activity and creates (not-)AFK events accordingly"""
 
     def __init__(self):
-        # TODO: Use MouseEvent and KeyboardEvent instead
-        # TODO: Detect keyboard usage
         # TODO: (nice to have) Xbox 360 controller usage
         Watcher.__init__(self, "afk")
         self.mouse = PyMouse()
@@ -175,38 +171,55 @@ class AFKWatcher(Watcher):
 
     @is_afk.setter
     def is_afk(self, boolean):
+        if boolean is False:
+            self.last_activity = self.now
+
         if self._is_afk == boolean:
-            logging.warning("Tried to set to what already was")
+            self.logger.debug("Tried to set to what already was")
             return
 
         self.add_activity(Activity([("non-" if boolean else "")+"AFK"], self.afk_changed, self.now))
 
         self._is_afk = boolean
         self.afk_changed = datetime.now()
-        logging.info("Is " + ("now" if boolean else "no longer") + " AFK")
+        self.logger.info("Is " + ("now" if boolean else "no longer") + " AFK")
 
     def run(self):
+        self.now = datetime.now()
         self.last_activity = datetime.now()
-        last_position = None
+        KeyboardListener(self).start()
+        MouseListener(self).start()
 
         while True:
             sleep(1.0)
-
             self.now = datetime.now()
-            position = self.mouse.position()
 
             passed_time = self.now - self.last_activity
             passed_afk = passed_time > timedelta(seconds=self.settings["timeout"])
 
-            # If mouse moved
-            if position != last_position:
-                if self.is_afk and not passed_afk:
-                    self.is_afk = False
+            if not self.is_afk and passed_afk:
+                self.is_afk = True
 
-                self.last_activity = self.now
-                last_position = position
-            # If mouse didn't move
-            else:
-                if not self.is_afk and passed_afk:
-                    self.is_afk = True
 
+class KeyboardListener(PyKeyboardEvent):
+    def __init__(self, watcher):
+        PyKeyboardEvent.__init__(self)
+        self.watcher = watcher
+
+    def tap(self, keycode, character, press):
+        self.watcher.logger.debug("Tapped key: {}".format(keycode))
+        self.watcher.is_afk = False
+
+
+class MouseListener(PyMouseEvent):
+    def __init__(self, watcher):
+        PyMouseEvent.__init__(self)
+        self.watcher = watcher
+
+    def click(self, x, y, button, press):
+        self.watcher.logger.debug("Clicked mousebutton: {}".format(button))
+        self.watcher.is_afk = False
+
+    def move(self, x, y):
+        self.watcher.logger.debug("Moved mouse to: {},{}".format(x, y))
+        self.watcher.is_afk = False
