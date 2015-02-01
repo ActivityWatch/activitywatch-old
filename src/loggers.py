@@ -12,30 +12,34 @@ from settings import Settings, SettingsException
 
 class ZenobaseLogger(Logger):
     def __init__(self):
-        Logger.__init__(self)
+        Logger.__init__(self, "zenobase")
 
-        settings = Settings()
-        if "loggers" in settings and "zenobase" in settings["loggers"]:
-            self.settings = settings["loggers"]["zenobase"]
-        else:
-            raise SettingsException("missing entry in settings file")
-
-        in_settings = lambda x: x in self.settings and self.settings[x]
-        if not all(map(in_settings, ["username", "password", "bucket"])):
+        in_settings_and_not_false = lambda x: x in self.settings and self.settings[x]
+        if not all(map(in_settings_and_not_false, ["username", "password", "bucket"])):
             raise SettingsException("invalid zenobase config")
+
+        self.api = pyzenobase.ZenobaseAPI(self.settings["username"], self.settings["password"])
+        self.bucket_id = self.api.create_or_get_bucket(self.settings["bucket"])["@id"]
 
     def run(self):
         while True:
             # Upload every 30 seconds
-            sleep(30.0)
+            sleep(5.0)
             activities = self.flush_activities()
-            zenobase_events = map(lambda x: x.to_zenobase_event(), activities)
-            # TODO: Upload to Zenobase
+            zenobase_events = list(map(lambda x: x.to_zenobase_event(), activities))
+
+            # Zenobase uses milliseconds as the base unit
+            for event in zenobase_events:
+                event["duration"] *= 1000
+
+            if len(zenobase_events) > 0:
+                self.api.create_events(self.bucket_id, zenobase_events)
+                print("Uploaded {} events to Zenobase".format(len(zenobase_events)))
 
 
 class JSONLogger(Logger):
     def __init__(self):
-        Logger.__init__(self)
+        Logger.__init__(self, "json")
 
         settings = Settings()
         if "loggers" in settings and "json" in settings["loggers"]:
@@ -77,7 +81,7 @@ class JSONLogger(Logger):
 
 class StdOutLogger(Logger):
     def __init__(self):
-        Logger.__init__(self)
+        Logger.__init__(self, "stdout")
 
     def run(self):
         while True:

@@ -5,6 +5,7 @@ import threading
 from datetime import datetime
 
 import pyzenobase
+from settings import Settings, SettingsException
 
 
 class Activity(dict):                                                                    
@@ -51,11 +52,23 @@ class Activity(dict):
         return json.dumps(data)
 
 
-class Logger(threading.Thread):
+class Agent(threading.Thread):
+    """Base class for Watchers, Filters and Watchers"""
+    def __init__(self, type, name):
+        threading.Thread.__init__(self, name=self.__class__.__name__)
+
+        settings = Settings()
+        if type+"s" in settings and name in settings[type+"s"]:
+            self.settings = settings[type+"s"][name]
+        else:
+            raise SettingsException("missing entry in settings file")
+
+
+class Logger(Agent):
     """Listens to watchers and logs activities"""
 
-    def __init__(self):
-        threading.Thread.__init__(self, name=self.__class__.__name__)
+    def __init__(self, name):
+        Agent.__init__(self, "logger", name)
         self.watchers = []
 
         # Must be thread-safe
@@ -85,11 +98,11 @@ class Logger(threading.Thread):
         self.watchers.append(watcher)
 
 
-class Watcher(threading.Thread):
+class Watcher(Agent):
     """Base class for a watcher"""
 
-    def __init__(self):
-        threading.Thread.__init__(self, name=self.__class__.__name__)
+    def __init__(self, name):
+        Agent.__init__(self, "watcher", name)
         self.loggers = []
 
     def _add_logger(self, logger):

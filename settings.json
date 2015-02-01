@@ -13,6 +13,8 @@
     },
     "watchers": {
         "x11": {},
-        "afk": {}
+        "afk": {
+            "timeout": 300
+        }
     }
 }

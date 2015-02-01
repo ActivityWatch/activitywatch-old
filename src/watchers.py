@@ -21,7 +21,7 @@ class X11Watcher(Watcher):
     # TODO: Move window helper functions to container class for xlib's Window
 
     def __init__(self):
-        Watcher.__init__(self)
+        Watcher.__init__(self, "x11")
         self.display = Xlib.display.Display()
         self.screen = self.display.screen()
 
@@ -76,8 +76,7 @@ class X11Watcher(Watcher):
         except Xlib.error.BadWindow:
             logging.error("Error while updating active window, trying again.")
             sleep(0.1)
-            self.update_active_window()
-            return
+            return False
 
         self.pid = self.get_window_pid(window)
         self.window_name, self.cls = self.get_window_name(window)
@@ -90,7 +89,10 @@ class X11Watcher(Watcher):
         return True
 
     def run(self):
-        self.update_active_window()
+        success = False
+        while not success:
+            success = self.update_active_window()
+
         logging.info("First focus is '{}'".format(self.window_name))
 
         self.update_last_window()
@@ -101,7 +103,7 @@ class X11Watcher(Watcher):
                 self.loop()
             except Exception as e:
                 logging.error("Exception was thrown while running loop: '{}', trying again.".format(e))
-                self.loop()
+                continue
 
     def loop(self):
         changed = self.update_active_window()
@@ -157,7 +159,7 @@ class AFKWatcher(Watcher):
         # TODO: Use MouseEvent and KeyboardEvent instead
         # TODO: Detect keyboard usage
         # TODO: (nice to have) Xbox 360 controller usage
-        Watcher.__init__(self)
+        Watcher.__init__(self, "afk")
         self.mouse = PyMouse()
         self.keyboard = PyKeyboard()
 
@@ -188,13 +190,13 @@ class AFKWatcher(Watcher):
         last_position = None
 
         while True:
-            sleep(0.1)
+            sleep(1.0)
 
             self.now = datetime.now()
             position = self.mouse.position()
 
             passed_time = self.now - self.last_activity
-            passed_afk = passed_time > timedelta(seconds=5)
+            passed_afk = passed_time > timedelta(seconds=self.settings["timeout"])
 
             # If mouse moved
             if position != last_position:
