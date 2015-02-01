@@ -1,0 +1,25 @@
+{
+    "manifest_version": 2,
+
+    "name": "ActivityWatch for Chrome",
+    "description": "This extension gathers data about Chrome activities for ActivityWatch",
+    "version": "1.0",
+
+    "browser_action": {
+        "default_icon": "icon.png",
+        "default_popup": "popup.html"
+    },
+
+    "background": {
+        "scripts": ["eventhandler.js"],
+        "persistent": false
+    },
+
+    "permissions": [
+        "activeTab",
+        "tabs",
+        "windows",
+        "storage",
+        "https://ajax.googleapis.com/"
+    ]
+}
