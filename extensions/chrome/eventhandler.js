@@ -1,31 +1,18 @@
-function getTab(callback) {
-    var queryInfo = {
-        active: true,
-        currentWindow: true
-    };
-
-    chrome.tabs.query(queryInfo, function(tabs) {
-        callback(tabs[0]);
-    });                                                                                 
-}
-
+/**
+ * Runs whenever active tab was changed
+ */
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-    chrome.storage.local.get("tabhistory", function(items) {
-        console.log(items);
-    });
-
     getTab(function(tab) {
+        console.log("Active tab changed");
         console.log(tab);
 
-        chrome.storage.local.get("tabhistory", function(items) {
-            var tabs = items.tabhistory;
+        getTabHistory(function(tabs) {
             tabs = [tab].concat(tabs);
             console.log(tabs);
 
-            chrome.storage.local.set({"tabhistory": tabs}, function() {
+            setTabHistory(tabs, function() {
                 console.log("tabhistory saved, length: " + tabs.length);
             });
         });
     });
-    
 });

@@ -11,28 +11,46 @@
       body {
         font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
         font-size: 100%;
+        margin: 0;
+        padding: 0;
       }
+
+      #container {
+        padding: 0.5em;
+      }
+    
       #status {
         /* avoid an excessively wide status text */
         white-space: pre;
         text-overflow: ellipsis;
         overflow: hidden;
-        width: 800px;
+        max-width: 400px;
+      }
+    
+      #menubar {
+        padding: 0.2em;
+        width: 100%;
+        border: 1px solid #000;
+        border-width: 0 0 1px 0;
+        margin-bottom: 0.5em;
+      }
+
+      #menubar > a {
+        text-decoration: none;
       }
     </style>
 
-    <!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
-     -->
+    <script src="lib.js"></script>
     <script src="popup.js"></script>
   </head>
+
   <body>
-    <div id="status"></div>
-    <div>
-        <a target="_blank" href="/settings.html">Open Settings</a>
+    <div id="menubar">
+        <a target="_blank" href="/settings.html">Settings</a>
+    </div>
+
+    <div id="container">
+        <div id="status"></div>
     </div>
   </body>
 </html>

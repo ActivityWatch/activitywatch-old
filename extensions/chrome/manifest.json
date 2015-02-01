@@ -11,7 +11,7 @@
     },
 
     "background": {
-        "scripts": ["eventhandler.js"],
+        "scripts": ["lib.js", "eventhandler.js"],
         "persistent": false
     },
 
