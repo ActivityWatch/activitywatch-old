@@ -7,12 +7,16 @@ from settings import Settings
 
 class MockWatcher(Watcher):
     def __init__(self):
-        Watcher.__init__(self)
+        settings = Settings()
+        settings["watchers"]["mock"] = {}
+        Watcher.__init__(self, "mock")
 
 
 class MockLogger(Logger):
     def __init__(self):
-        Logger.__init__(self)
+        settings = Settings()
+        settings["loggers"]["mock"] = {}
+        Logger.__init__(self, "mock")
 
 
 class LoggerWatcherTest(unittest.TestCase):
