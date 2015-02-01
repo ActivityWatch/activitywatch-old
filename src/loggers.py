@@ -23,14 +23,10 @@ class ZenobaseLogger(Logger):
 
     def run(self):
         while True:
-            # Upload every 30 seconds
-            sleep(5.0)
+            # Upload every minute if there are new activities
+            sleep(60.0)
             activities = self.flush_activities()
             zenobase_events = list(map(lambda x: x.to_zenobase_event(), activities))
-
-            # Zenobase uses milliseconds as the base unit
-            for event in zenobase_events:
-                event["duration"] *= 1000
 
             if len(zenobase_events) > 0:
                 self.api.create_events(self.bucket_id, zenobase_events)

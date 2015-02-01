@@ -37,8 +37,8 @@ class Activity(dict):
     def to_zenobase_event(self):
         # TODO: Add misc fields into note field
         data = {"tag": self["tags"],
-                "timestamp": [self["start"], self["end"]],
-                "duration": self.duration().total_seconds()}
+                "timestamp": self["start"],
+                "duration": self.duration().total_seconds()*1000}
         return pyzenobase.ZenobaseEvent(data)
 
     def to_json_dict(self):
