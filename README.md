@@ -80,9 +80,6 @@ Extensions may include extra watchers and loggers. Such as ChromeWatcher or FTPL
  - Log console commands
  - Android & iOS support
 
-## License
-ActivityWatch is not yet published under a license, but is likely to be published under the GPLv3 in the future.
-
 -----------------
 
 **DISCLAIMER**  
