@@ -13,6 +13,27 @@ class Singleton:
             self.instance = self.cls(*args, **kwds)
         return self.instance
 
+DEFAULT_SETTINGS = json.dumps({
+    "location": [],
+    "tags": [],
+    "loggers": {
+        "zenobase": {
+            "bucket": "ActivityWatch",
+            "username": "FILL ME IN",
+            "password": "FILL ME IN"
+        },
+        "json": {
+            "filename": "output.json"
+        }
+    },
+    "watchers": {
+        "x11": {},
+        "afk": {
+            "timeout": 300
+        }
+    }
+}, indent=4)
+
 
 @Singleton
 class Settings(dict):
@@ -20,10 +41,12 @@ class Settings(dict):
         # TODO: If settingsfile doesn't exist, create one from default settings file
         # TODO: Store in users application data folder
         dict.__init__(self)
-        filepath = os.path.realpath(__file__)
-        srcpath = os.path.dirname(filepath)
-        rootpath = os.path.dirname(srcpath)
-        with open(rootpath + "/settings.json") as f:
+        confdir = os.getenv("HOME")
+        confpath = confdir + "/.activitywatch.json"
+        if not os.path.exists(confpath):
+            with open(confpath, "w+") as f:
+                f.write(DEFAULT_SETTINGS)
+        with open(confpath) as f:
             self.update(json.loads(f.read()))
 
         msg = "Loaded settings"

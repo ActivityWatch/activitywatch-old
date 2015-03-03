@@ -6,8 +6,8 @@ from datetime import datetime
 
 import pyzenobase
 
-from base import Logger
-from settings import Settings, SettingsException
+from .base import Logger
+from .settings import Settings, SettingsException
 
 
 class ZenobaseLogger(Logger):

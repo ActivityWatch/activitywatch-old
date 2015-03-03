@@ -7,13 +7,13 @@ python:
     - 3.4
 
 before_install:
-    - ./install_dependencies.sh
+    - true
 
 install:
-    - true
+    - pip setup.py install
 
 before_script:
     - true
 
 script:
-    - python -m unittest discover -s ./src -p '*.py'
+    - python -m unittest discover -s ./src/activitywatch -p '*.py'

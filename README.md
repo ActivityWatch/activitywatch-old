@@ -79,11 +79,17 @@ Extensions may include extra watchers and loggers. Such as ChromeWatcher or FTPL
  - Log tmux activity (Use `tmux server-info` and others to get data)
  - Log console commands
  - Android & iOS support
+    - asd
+ - Application identification
+    - Using Wikidata/Wikipedia?
+    - Using crowdsourced reporting?
+    - Detect category. 
+    - Website etc. (using Wikidata/Freebase?)
+    - *Wikimedia Commons* has a great set of categories. Google Chrome for example has the category [Google Chrome](https://commons.wikimedia.org/wiki/Category:Google_Chrome), with parent category [Web Browsers](https://commons.wikimedia.org/wiki/Category:Web_browsers) with parent category [Application software by type](https://commons.wikimedia.org/wiki/Category:Google_Chrome) which should be considered the root directory of all categories.
+    - Not all applications have easily identifiable categories via Wikidata, for those it might be easiest to parse the first sentence(s) of the Wikipedia article and check for clues.
+ - Productivity score
+    - Assign discrete or continuous productivity scores to categories, then rate activities according to their category.
+    - The ability to manually add productivity 
 
 ## License
 ActivityWatch is not yet published under a license, but is likely to be published under the GPLv3 in the future.
-
------------------
-
-**DISCLAIMER**  
-Not affiliated with Zenobase, just a fan.

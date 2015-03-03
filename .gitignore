@@ -3,3 +3,6 @@ virtualenv
 *.swp
 .idea
 output.json
+build
+dist
+*.egg-info

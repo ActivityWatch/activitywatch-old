@@ -10,7 +10,7 @@ from Xlib import X, Xatom
 from pymouse import PyMouse, PyMouseEvent
 from pykeyboard import PyKeyboard, PyKeyboardEvent
 
-from base import Watcher, Activity
+from .base import Watcher, Activity
 
 
 class X11Watcher(Watcher):

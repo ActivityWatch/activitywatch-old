@@ -5,7 +5,7 @@ import threading
 from datetime import datetime
 
 import pyzenobase
-from settings import Settings, SettingsException
+from .settings import Settings, SettingsException
 
 
 class Activity(dict):                                                                    

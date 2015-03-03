@@ -1,8 +1,8 @@
 import unittest
 from datetime import datetime, timedelta
 
-from base import Watcher, Activity, Logger
-from settings import Settings
+from activitywatch.base import Watcher, Activity, Logger
+from activitywatch.settings import Settings
 
 
 class MockWatcher(Watcher):
