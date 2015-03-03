@@ -90,6 +90,3 @@ Extensions may include extra watchers and loggers. Such as ChromeWatcher or FTPL
  - Productivity score
     - Assign discrete or continuous productivity scores to categories, then rate activities according to their category.
     - The ability to manually add productivity 
-
-## License
-ActivityWatch is not yet published under a license, but is likely to be published under the GPLv3 in the future.
