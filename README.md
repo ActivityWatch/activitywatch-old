@@ -7,6 +7,17 @@
 
 Logs the time spent by the user in different tasks on the computer.
 
+## Usage
+Install the package with `sudo pip3 install setup.py` and then run `python3 start-activitywatch.py`.
+
+Alternatively, you can install and run it from a virtualenv.
+
+#### Configuration
+The first time you run the program, a configuration file will be created as `$HOME/.activitywatch.json`.
+
+#### Future usage
+A more user friendly approach to installation and usage might become available in the future.
+Such a release would have Python bundled for non-Linux systems.
 
 ## About
 

@@ -11,8 +11,10 @@ from .settings import Settings, SettingsException
 
 
 class ZenobaseLogger(Logger):
+    NAME = "zenobase"
+
     def __init__(self):
-        Logger.__init__(self, "zenobase")
+        Logger.__init__(self)
 
         in_settings_and_not_false = lambda x: x in self.settings and self.settings[x]
         if not all(map(in_settings_and_not_false, ["username", "password", "bucket"])):
@@ -34,8 +36,10 @@ class ZenobaseLogger(Logger):
 
 
 class JSONLogger(Logger):
+    NAME = "json"
+
     def __init__(self):
-        Logger.__init__(self, "json")
+        Logger.__init__(self)
 
         settings = Settings()
         if "loggers" in settings and "json" in settings["loggers"]:
@@ -43,6 +47,10 @@ class JSONLogger(Logger):
 
         if "filename" not in self.settings:
             raise SettingsException("filename wasn't defined in settings")
+
+        if not os.path.isabs(self.settings["filename"]):
+            self.settings["filename"] = os.path.abspath(self.settings["filename"])
+        logging.info("JSON logger will output to: " + self.settings["filename"])
 
     def run(self):
         while True:
@@ -71,13 +79,15 @@ class JSONLogger(Logger):
                     data["updated"] = now
 
                     f.seek(0)
-                    json.dump(data, f)
+                    json.dump(data, f, indent=4)
                 logging.info("Saved {} activities to JSON".format(len(activities)))
 
 
 class StdOutLogger(Logger):
+    NAME = "stdout"
+
     def __init__(self):
-        Logger.__init__(self, "stdout")
+        Logger.__init__(self)
 
     def run(self):
         while True:

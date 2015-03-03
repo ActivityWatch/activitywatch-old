@@ -54,24 +54,39 @@ class Activity(dict):
 
 class Agent(threading.Thread):
     """Base class for Watchers, Filters and Watchers"""
-    def __init__(self, type, name):
+    NAME = ""
+
+    def __init__(self):
         threading.Thread.__init__(self, name=self.__class__.__name__)
 
-        self.logger = logging.Logger(self.__class__.__name__)
+        if not self.NAME:
+            raise Exception("NAME can not be empty")
 
+        agent_type = self.get_agent_type()
         settings = Settings()
-        if type+"s" in settings and name in settings[type+"s"]:
-            self.settings = settings[type+"s"][name]
+        if agent_type+"s" in settings and self.NAME in settings[agent_type+"s"]:
+            self.settings = settings[agent_type+"s"][self.NAME]
         else:
             raise SettingsException("missing entry in settings file")
+
+    def get_agent_type(self):
+        if isinstance(self, Logger) and isinstance(self, Watcher):
+            agent_type = "filter"
+        elif isinstance(self, Logger):
+            agent_type = "logger"
+        elif isinstance(self, Watcher):
+            agent_type = "watcher"
+        else:
+            raise Exception("Unknown agent type")
+        return agent_type
 
 
 class Logger(Agent):
     """Listens to watchers and logs activities"""
 
-    def __init__(self, name):
-        Agent.__init__(self, "logger", name)
-        self.watchers = []
+    def __init__(self):
+        Agent.__init__(self)
+        self.watchers = set()
 
         # Must be thread-safe
         self._activities = []
@@ -97,21 +112,21 @@ class Logger(Agent):
         if not isinstance(watcher, Watcher):
             raise TypeError("{} is not a Watcher".format(watcher))
         watcher._add_logger(self)
-        self.watchers.append(watcher)
+        self.watchers.add(watcher)
 
 
 class Watcher(Agent):
     """Base class for a watcher"""
 
-    def __init__(self, name):
-        Agent.__init__(self, "watcher", name)
-        self.loggers = []
+    def __init__(self):
+        Agent.__init__(self)
+        self.loggers = set()
 
     def _add_logger(self, logger):
         """Should only be called from Logger.add_watcher"""
         if not isinstance(logger, Logger):
             raise TypeError("{} was not a Logger".format(logger))
-        self.loggers.append(logger)
+        self.loggers.add(logger)
 
     def run(self):
         raise NotImplementedError("Watchers must implement the run method")

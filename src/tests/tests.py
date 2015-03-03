@@ -6,17 +6,21 @@ from activitywatch.settings import Settings
 
 
 class MockWatcher(Watcher):
+    NAME = "mock"
+
     def __init__(self):
         settings = Settings()
-        settings["watchers"]["mock"] = {}
-        Watcher.__init__(self, "mock")
+        settings["watchers"][self.NAME] = {}
+        Watcher.__init__(self)
 
 
 class MockLogger(Logger):
+    NAME = "mock"
+
     def __init__(self):
         settings = Settings()
-        settings["loggers"]["mock"] = {}
-        Logger.__init__(self, "mock")
+        settings["loggers"][self.NAME] = {}
+        Logger.__init__(self)
 
 
 class LoggerWatcherTest(unittest.TestCase):

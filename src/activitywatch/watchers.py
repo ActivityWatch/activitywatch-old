@@ -1,5 +1,6 @@
 from time import sleep
 from datetime import datetime, timedelta
+import logging
 
 import psutil
 
@@ -17,8 +18,10 @@ class X11Watcher(Watcher):
     """Watches activity in X11"""
     # TODO: Move window helper functions to container class for xlib's Window
 
+    NAME = "x11"
+
     def __init__(self):
-        Watcher.__init__(self, "x11")
+        Watcher.__init__(self)
         self.display = Xlib.display.Display()
         self.screen = self.display.screen()
 
@@ -71,7 +74,7 @@ class X11Watcher(Watcher):
         try:
             self.get_window_pid(window)
         except Xlib.error.BadWindow:
-            self.logger.error("Error while updating active window, trying again.")
+            logging.error("Error while updating active window, trying again.")
             sleep(0.1)
             return False
 
@@ -90,7 +93,7 @@ class X11Watcher(Watcher):
         while not success:
             success = self.update_active_window()
 
-        self.logger.info("First focus is '{}'".format(self.window_name))
+        logging.info("First focus is '{}'".format(self.window_name))
 
         self.update_last_window()
 
@@ -100,7 +103,7 @@ class X11Watcher(Watcher):
             try:
                 self.loop()
             except Exception as e:
-                self.logger.error("Exception was thrown while running loop: '{}', trying again.".format(e))
+                logging.error("Exception was thrown while running loop: '{}', trying again.".format(e))
                 continue
 
     def loop(self):
@@ -113,7 +116,7 @@ class X11Watcher(Watcher):
         activity = Activity(self.last_cls, self.last_selected_at, datetime.now(), cmd=self.cmd)
         self.add_activity(activity)
 
-        self.logger.info("Switched to '{}' with PID: {}".format(self.cls, self.pid))
+        logging.info("Switched to '{}' with PID: {}".format(self.cls, self.pid))
 
         self.update_last_window()
 
@@ -153,9 +156,11 @@ class X11Watcher(Watcher):
 class AFKWatcher(Watcher):
     """Watches for keyboard & mouse activity and creates (not-)AFK events accordingly"""
 
+    NAME = "afk"
+
     def __init__(self):
         # TODO: (nice to have) Xbox 360 controller usage
-        Watcher.__init__(self, "afk")
+        Watcher.__init__(self)
         self.mouse = PyMouse()
         self.keyboard = PyKeyboard()
 
@@ -175,14 +180,14 @@ class AFKWatcher(Watcher):
             self.last_activity = self.now
 
         if self._is_afk == boolean:
-            self.logger.debug("Tried to set to what already was")
+            logging.debug("Tried to set to what already was")
             return
 
         self.add_activity(Activity([("non-" if boolean else "")+"AFK"], self.afk_changed, self.now))
 
         self._is_afk = boolean
         self.afk_changed = datetime.now()
-        self.logger.info("Is " + ("now" if boolean else "no longer") + " AFK")
+        logging.info("Is " + ("now" if boolean else "no longer") + " AFK")
 
     def run(self):
         self.now = datetime.now()
@@ -207,7 +212,7 @@ class KeyboardListener(PyKeyboardEvent):
         self.watcher = watcher
 
     def tap(self, keycode, character, press):
-        self.watcher.logger.debug("Tapped key: {}".format(keycode))
+        logging.debug("Tapped key: {}".format(keycode))
         self.watcher.is_afk = False
 
 
@@ -217,9 +222,9 @@ class MouseListener(PyMouseEvent):
         self.watcher = watcher
 
     def click(self, x, y, button, press):
-        self.watcher.logger.debug("Clicked mousebutton: {}".format(button))
+        logging.debug("Clicked mousebutton: {}".format(button))
         self.watcher.is_afk = False
 
     def move(self, x, y):
-        self.watcher.logger.debug("Moved mouse to: {},{}".format(x, y))
+        logging.debug("Moved mouse to: {},{}".format(x, y))
         self.watcher.is_afk = False
