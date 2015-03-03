@@ -52,14 +52,15 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=["src.activitywatch"],
+    package_dir={'': 'src'},
+    packages=["activitywatch"],
 
     # List run-time dependencies here.  These will be installed by pip when your
     # project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
-    install_requires=['psutil', 'pyuserinput'],
+    install_requires=['psutil', 'pyuserinput', 'pyzenobase', 'python3-xlib'],
 
-    dependency_links=['git+https://github.com/liulang/python3-xlib.git',
-                      'git+https://github.com/ErikBjare/pyzenobase.git']
+    dependency_links=['https://github.com/ErikBjare/pyzenobase/archive/master.zip#egg=pyzenobase',
+                      'https://git@github.com/liulang/python3-xlib/archive/master.zip#egg=python3-xlib']
 )
