@@ -16,4 +16,4 @@ before_script:
     - true
 
 script:
-    - python -m unittest discover -s ./src/activitywatch -p '*.py'
+    - python -m unittest discover -s ./src/tests -p '*.py'
