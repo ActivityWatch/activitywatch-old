@@ -1,3 +1,4 @@
+from activitywatch import rest
 from .base import Logger, Watcher
 from .modulemanager import ModuleManager
 from .settings import Settings, SettingsException
@@ -48,6 +49,8 @@ def start():
         mm.add_agent(jsonlogger)
         mm.add_agent(windowwatcher)
         mm.add_agent(afkwatcher)
+
+        mm.add_agent(rest.RestLogger())
 
         # Start Loggers
         mm.start_agents()

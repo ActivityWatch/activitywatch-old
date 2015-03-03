@@ -1,0 +1,22 @@
+<div ng-switch="agent">
+    <div ng-switch-when="undefined">
+        No agent with identifier <code>{{$routeParams.id}}</code>
+    </div>
+
+    <div ng-switch-default>
+        <b>Name: </b> {{agent.name}}
+        <br>
+    <span style="color: #888; font-size: 0.85em;">
+        <b>ID: </b> {{agent.id}}</small>
+    </span>
+        <br>
+        <b>Type: </b> {{agent.type}}
+        <br>
+        <br>
+        Raw:
+        <code>
+            {{agent}}
+        </code>
+    </div>
+</div>
+

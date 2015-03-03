@@ -32,7 +32,7 @@ class ZenobaseLogger(Logger):
 
             if len(zenobase_events) > 0:
                 self.api.create_events(self.bucket_id, zenobase_events)
-                print("Uploaded {} events to Zenobase".format(len(zenobase_events)))
+                logging.info("Uploaded {} events to Zenobase".format(len(zenobase_events)))
 
 
 class JSONLogger(Logger):

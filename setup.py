@@ -55,11 +55,15 @@ setup(
     package_dir={'': 'src'},
     packages=["activitywatch"],
 
+    include_package_data=True,
+    package_data={'': ['*.html', '*.js', '*.css']},
+    zip_safe=False,
+
     # List run-time dependencies here.  These will be installed by pip when your
     # project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
-    install_requires=['psutil', 'pyuserinput', 'pyzenobase', 'python3-xlib'],
+    install_requires=['flask', 'psutil', 'pyuserinput', 'pyzenobase', 'python3-xlib'],
 
     dependency_links=['https://github.com/ErikBjare/pyzenobase/archive/master.zip#egg=pyzenobase',
                       'https://git@github.com/liulang/python3-xlib/archive/master.zip#egg=python3-xlib']

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html ng-app="activitywatch">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>ActivityWatch</title>
+    <base href="/">
+
+    <script src="http://underscorejs.org/underscore.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-resource.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-route.min.js"></script>
+    <script src="/scripts/main.js"></script>
+
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        #agent-list {
+
+        }
+
+        .agent-status {
+            width: 1em;
+        }
+
+        .agent-status > .alive {
+            color: #090;
+        }
+
+        .agent-status > .dead {
+            color: #F00;
+        }
+    </style>
+</head>
+<body>
+<div ng-controller="MainCtrl">
+    <div class="container">
+        <a href="/">
+            <div class="row">
+                <div class="col-md-12 text-center" style="border-bottom: 1px solid #DDD; padding-bottom: 1em; margin-bottom: 1em;">
+                    <h1>ActivityWatch</h1>
+                </div>
+            </div>
+        </a>
+
+        <div class="row">
+            <div class="col-md-10">
+                <div ng-view></div>
+            </div>
+            <div id="agent-list" class="col-md-2" ng-controller="AgentsCtrl">
+                <div ng-repeat="agents_of_type in agents">
+
+                    <table class="table">
+                        <tr>
+                            <th colspan="2" ng-switch="agents_of_type[0].type" style="border-top: 0">
+                                <span ng-switch-when="logger">Loggers</span>
+                                <span ng-switch-when="watcher">Watchers</span>
+                                <span ng-switch-when="filter">Filters</span>
+                            </th>
+                        </tr>
+                        <tr ng-repeat="agent in agents_of_type">
+                            <td class="agent-status" ng-switch="agent.alive">
+                                <span ng-switch-when="true" class="alive glyphicon glyphicon-ok"></span>
+                                <span ng-switch-when="false" class="dead glyphicon glyphicon-cancel"></span>
+                            </td>
+                            <td>
+                                <a href="/agent/{{agent.id}}">{{agent.name}}</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

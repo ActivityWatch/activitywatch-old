@@ -1,10 +1,11 @@
 
 import logging
 from .base import Agent, Logger, Watcher
+from .settings import Singleton
 
 
+@Singleton
 class ModuleManager():
-
     _agents = []
 
     def __init__(self):
