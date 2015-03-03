@@ -10,7 +10,7 @@ before_install:
     - true
 
 install:
-    - pip setup.py install
+    - python setup.py install
 
 before_script:
     - true
