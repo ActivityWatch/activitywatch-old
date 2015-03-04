@@ -8,7 +8,7 @@
 Logs the time spent by the user in different tasks on the computer.
 
 ## Usage
-Install the package with `sudo pip3 install setup.py` and then run `python3 start-activitywatch.py`.
+Install the package with `sudo pip3 setup.py install` and then run `python3 start-activitywatch.py`.
 
 Alternatively, you can install and run it from a virtualenv.
 
