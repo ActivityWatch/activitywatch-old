@@ -19,7 +19,7 @@ setup(
     url='https://github.com/ErikBjare/activitywatch',
 
     # Author details
-    author='Erik Bjäreholt',
+    author='Erik Bjareholt',
     author_email='erik@bjareho.lt',
 
     # Choose your license
@@ -63,8 +63,8 @@ setup(
     # project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
-    install_requires=['flask', 'psutil', 'pyuserinput', 'pyzenobase', 'python3-xlib'],
+    install_requires=['flask', 'psutil', 'pyuserinput', 'pyzenobase', 'python3-xlib', 'mypy-lang'],
 
     dependency_links=['https://github.com/ErikBjare/pyzenobase/archive/master.zip#egg=pyzenobase',
-                      'https://git@github.com/liulang/python3-xlib/archive/master.zip#egg=python3-xlib']
+                      'https://git@github.com/liulang/python3-xlib/archive/master.zip#egg=xlib']
 )

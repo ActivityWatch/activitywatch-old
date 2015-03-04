@@ -14,10 +14,6 @@
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        #agent-list {
-
-        }
-
         .agent-status {
             width: 1em;
         }
@@ -46,27 +42,35 @@
             <div class="col-md-10">
                 <div ng-view></div>
             </div>
-            <div id="agent-list" class="col-md-2" ng-controller="AgentsCtrl">
-                <div ng-repeat="agents_of_type in agents">
-
-                    <table class="table">
-                        <tr>
-                            <th colspan="2" ng-switch="agents_of_type[0].type" style="border-top: 0">
-                                <span ng-switch-when="logger">Loggers</span>
-                                <span ng-switch-when="watcher">Watchers</span>
-                                <span ng-switch-when="filter">Filters</span>
-                            </th>
-                        </tr>
-                        <tr ng-repeat="agent in agents_of_type">
-                            <td class="agent-status" ng-switch="agent.alive">
-                                <span ng-switch-when="true" class="alive glyphicon glyphicon-ok"></span>
-                                <span ng-switch-when="false" class="dead glyphicon glyphicon-cancel"></span>
-                            </td>
-                            <td>
-                                <a href="/agent/{{agent.id}}">{{agent.name}}</a>
-                            </td>
-                        </tr>
-                    </table>
+            <div ng-controller="AgentsCtrl" class="col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <b>Agents</b>
+                        <a ng-click="update_agents()" style="cursor: pointer; float: right;"><span class="glyphicon glyphicon-refresh"></span></a>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table" ng-repeat="(type, agents) in agents" style="margin-bottom: 0.5em;">
+                            <tr>
+                                <th colspan="2" ng-switch="type" style="border-top: 0">
+                                    <span ng-switch-when="logger">Loggers</span>
+                                    <span ng-switch-when="watcher">Watchers</span>
+                                    <span ng-switch-when="filter">Filters</span>
+                                </th>
+                            </tr>
+                            <tr ng-repeat="agent in agents" ng-click="$location.url('/agent/'+agent.id)" style="cursor: pointer;">
+                                <td class="agent-status" ng-switch="agent.alive">
+                                    <span ng-switch-when="true" class="alive glyphicon glyphicon-ok"></span>
+                                    <span ng-switch-when="false" class="dead glyphicon glyphicon-cancel"></span>
+                                </td>
+                                <td>
+                                    {{agent.name}}
+                                </td>
+                            </tr>
+                            <tr ng-if="agents.length == 0">
+                                <td colspan="2"><small>No {{type}} loaded</small></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

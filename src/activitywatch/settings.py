@@ -2,16 +2,8 @@ import json
 import os
 import logging
 
+from .utils import Singleton
 
-class Singleton:
-    def __init__(self, cls):
-        self.cls = cls
-        self.instance = None
-
-    def __call__(self, *args, **kwds):
-        if self.instance is None:
-            self.instance = self.cls(*args, **kwds)
-        return self.instance
 
 DEFAULT_SETTINGS = json.dumps({
     "location": [],

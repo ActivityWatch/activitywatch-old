@@ -24,17 +24,23 @@ app.controller("MainCtrl", function($scope, $route, $routeParams, $location) {
 app.controller("HomeCtrl", function($scope) {
 });
 
-app.controller("AgentsCtrl", function($scope, $resource) {
+app.controller("AgentsCtrl", function($scope, $resource, $interval) {
     var Agents = $resource("/api/0/agents");
+    $scope.agents = {"watcher": [], "filter": [], "logger": []};
 
-    var agents = [];
-
-    Agents.query({}, function(agents) {
-        console.log(agents);
-        $scope.agents = _.groupBy(agents, function(a) {
-            return a.type;
+   $scope.update_agents = function() {
+        Agents.query({}, function(agents) {
+            _.each($scope.agents, function(object, type) {
+                $scope.agents[type] = _.filter(agents, function(a) { return a.type == type; })
+            });
         });
-    });
+    };
+    $scope.update_agents();
+
+    // Updates status of agents every 60 seconds
+    $interval(function() {
+        update_agents()
+    }, 60*1000);
 });
 
 app.controller("AgentCtrl", function($scope, $resource, $routeParams) {

@@ -6,6 +6,7 @@ import psutil
 
 import Xlib
 import Xlib.display
+from Xlib.xobject.drawable import Window
 from Xlib import X, Xatom
 
 from pymouse import PyMouse, PyMouseEvent
@@ -41,7 +42,7 @@ class X11Watcher(Watcher):
         self.last_selected_at = None
 
     @property
-    def last_window(self):
+    def last_window(self) -> Window:
         return self._last_window
 
     def update_last_window(self):
@@ -52,7 +53,7 @@ class X11Watcher(Watcher):
         self.last_process = self.process
 
     @property
-    def active_window(self):
+    def active_window(self) -> Window:
         return self._active_window
 
     def update_active_window(self) -> bool:
@@ -121,11 +122,12 @@ class X11Watcher(Watcher):
         self.update_last_window()
 
 
-    def get_window(self, window_id):
+    def get_window(self, window_id) -> Window:
         return self.display.create_resource_object('window', window_id)
 
-    def get_window_name(self, window):
-        name = None
+    @staticmethod
+    def get_window_name(window) -> (str, str):
+        name, cls = None, None
         while window:
             cls = window.get_wm_class()
             name = window.get_wm_name()
@@ -135,7 +137,7 @@ class X11Watcher(Watcher):
                 break
         return name, cls
 
-    def get_window_pid(self, window):
+    def get_window_pid(self, window: Window) -> int or str:
         atom = self.display.get_atom("_NET_WM_PID")
         pid_property = window.get_full_property(atom, X.AnyPropertyType)
         if pid_property:
@@ -149,7 +151,7 @@ class X11Watcher(Watcher):
         return self.get_window_pid(self.active_window)
 
     @staticmethod
-    def process_by_pid(pid):
+    def process_by_pid(pid: str or int) -> psutil.Process:
         return psutil.Process(int(pid))
 
 
@@ -171,11 +173,11 @@ class AFKWatcher(Watcher):
         self.afk_changed = datetime.now()
 
     @property
-    def is_afk(self):
+    def is_afk(self) -> bool:
         return self._is_afk
 
     @is_afk.setter
-    def is_afk(self, boolean):
+    def is_afk(self, boolean: bool):
         if boolean is False:
             self.last_activity = self.now
 

@@ -2,14 +2,14 @@ import json
 import logging
 
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pyzenobase
 from .settings import Settings, SettingsException
 
 
 class Activity(dict):                                                                    
-    def __init__(self, tags: "string or string[]", started_at, ended_at, **kwargs):
+    def __init__(self, tags: str or "list[str]", started_at, ended_at, **kwargs):
         dict.__init__(self)
         self["tags"] = tags
         if "cmd" in kwargs:
@@ -31,23 +31,23 @@ class Activity(dict):
             msg += "  Command: {}".format(self["cmd"])
         logging.debug(msg)
 
-    def duration(self):
+    def duration(self) -> timedelta:
         return self["end"] - self["start"]
 
-    def to_zenobase_event(self):
+    def to_zenobase_event(self) -> pyzenobase.ZenobaseEvent:
         # TODO: Add misc fields into note field
         data = {"tag": self["tags"],
                 "timestamp": self["start"],
                 "duration": self.duration().total_seconds()*1000}
         return pyzenobase.ZenobaseEvent(data)
 
-    def to_json_dict(self):
+    def to_json_dict(self) -> dict:
         data = self.copy()
         data["start"] = data["start"].isoformat()
         data["end"] = data["end"].isoformat()
         return data
 
-    def to_json(self):
+    def to_json(self) -> str:
         data = self.to_json_dict()
         return json.dumps(data)
 
@@ -69,16 +69,15 @@ class Agent(threading.Thread):
         else:
             raise SettingsException("missing entry in settings file")
 
-    def get_agent_type(self):
+    def get_agent_type(self) -> str:
         if isinstance(self, Logger) and isinstance(self, Watcher):
-            agent_type = "filter"
+            return "filter"
         elif isinstance(self, Logger):
-            agent_type = "logger"
+            return "logger"
         elif isinstance(self, Watcher):
-            agent_type = "watcher"
+            return "watcher"
         else:
             raise Exception("Unknown agent type")
-        return agent_type
 
 
 class Logger(Agent):
@@ -95,19 +94,19 @@ class Logger(Agent):
     def run(self):
         raise NotImplementedError("run method must be implemented in Logger subclass")
 
-    def add_activity(self, activity):
+    def add_activity(self, activity: Activity):
         if not isinstance(activity, Activity):
             raise TypeError("{} is not an Activity".format(activity))
         with self._activities_lock:
             self._activities.append(activity)
 
-    def flush_activities(self):
+    def flush_activities(self) -> "list[Activity]":
         with self._activities_lock:
             activities = self._activities
             self._activities = []
         return activities
 
-    def add_watcher(self, watcher):
+    def add_watcher(self, watcher: "Watcher"):
         """Start listening to watchers here"""
         if not isinstance(watcher, Watcher):
             raise TypeError("{} is not a Watcher".format(watcher))
@@ -122,7 +121,7 @@ class Watcher(Agent):
         Agent.__init__(self)
         self.loggers = set()
 
-    def _add_logger(self, logger):
+    def _add_logger(self, logger: Logger):
         """Should only be called from Logger.add_watcher"""
         if not isinstance(logger, Logger):
             raise TypeError("{} was not a Logger".format(logger))
@@ -131,6 +130,6 @@ class Watcher(Agent):
     def run(self):
         raise NotImplementedError("Watchers must implement the run method")
 
-    def add_activity(self, activity):
+    def add_activity(self, activity: Activity):
         for logger in self.loggers:
             logger.add_activity(activity)

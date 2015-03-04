@@ -13,7 +13,7 @@ def start():
     import unittest
     import logging
 
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s from %(threadName)s: %(message)s")
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s from %(threadName)s: %(message)s")
 
     if len(sys.argv) > 1:
         cmd = sys.argv[1]
@@ -54,3 +54,7 @@ def start():
 
         # Start Loggers
         mm.start_agents()
+
+def __main__():
+    print("Hello from main")
+    start()

@@ -9,7 +9,7 @@ from activitywatch.base import Logger
 app = Flask(__name__, static_url_path='', static_folder='site')
 
 
-def agent_to_json(agent):
+def agent_to_json(agent) -> dict:
     return {"name": agent.NAME,
             "type": agent.get_agent_type(),
             "alive": agent.is_alive(),

@@ -11,7 +11,7 @@ class ModuleManager():
     def __init__(self):
         pass
 
-    def add_agent(self, agent):
+    def add_agent(self, agent: Agent):
         if not isinstance(agent, Agent):
             raise Exception("'{}' is not an agent")
 
@@ -20,7 +20,7 @@ class ModuleManager():
         else:
             logging.warning("Agent '{}' already added to the module manager".format(agent))
 
-    def get_agents(self):
+    def get_agents(self) -> "list[Agent]":
         # TODO: Make a property
         return self._agents
 
@@ -35,7 +35,7 @@ class ModuleManager():
 
     """Starts a list of agents after checking for each of them that they haven't already been started"""
     @staticmethod
-    def _start_agents(agents):
+    def _start_agents(agents: "list[Agent]"):
         for agent in agents:
             if not agent.is_alive():
                 agent.start()
