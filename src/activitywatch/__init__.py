@@ -1,10 +1,11 @@
-from activitywatch import rest
+from . import rest
 from .base import Logger, Watcher
 from .modulemanager import ModuleManager
 from .settings import Settings, SettingsException
 
 from . import loggers
 from . import watchers
+print(dir(watchers))
 
 
 def start():
@@ -34,6 +35,8 @@ def start():
         # Create Watchers
         if platform.system() == "Linux":
             windowwatcher = watchers.X11Watcher()
+        elif platform.system() == "Darwin":
+            windowwatcher = watchers.OSXWatcher()
         else:
             raise Exception("Sorry, only Linux is currently supported, stay tuned for updates or contribute module for your operating system.")
         afkwatcher = watchers.AFKWatcher()
