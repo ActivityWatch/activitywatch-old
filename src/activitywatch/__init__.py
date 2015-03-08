@@ -1,11 +1,9 @@
-from . import rest
 from .base import Logger, Watcher
 from .modulemanager import ModuleManager
 from .settings import Settings, SettingsException
 
 from . import loggers
 from . import watchers
-print(dir(watchers))
 
 
 def start():
@@ -53,11 +51,7 @@ def start():
         mm.add_agent(windowwatcher)
         mm.add_agent(afkwatcher)
 
-        mm.add_agent(rest.RestLogger())
+        mm.add_agent(watchers.rest.RestLogger())
 
         # Start Loggers
         mm.start_agents()
-
-def __main__():
-    print("Hello from main")
-    start()
