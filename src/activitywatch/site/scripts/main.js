@@ -26,20 +26,29 @@ app.controller("HomeCtrl", function($scope) {
 
 app.controller("AgentsCtrl", function($scope, $resource, $interval) {
     var Agents = $resource("/api/0/agents");
-    $scope.agents = {"watcher": [], "filter": [], "logger": []};
+    $scope.refreshing = false;
 
-   $scope.update_agents = function() {
+    var clear_agents = function () {
+        $scope.agents = {"watcher": [], "filter": [], "logger": []};
+    }
+
+    $scope.update_agents = function() {
+        $scope.refreshing = true;
+        clear_agents();
         Agents.query({}, function(agents) {
             _.each($scope.agents, function(object, type) {
                 $scope.agents[type] = _.filter(agents, function(a) { return a.type == type; })
             });
-        });
+        })
+            .$promise.finally(function() {
+                $scope.refreshing = false;
+            });
     };
     $scope.update_agents();
 
     // Updates status of agents every 60 seconds
     $interval(function() {
-        update_agents()
+        $scope.update_agents()
     }, 60*1000);
 });
 
