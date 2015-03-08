@@ -2,14 +2,11 @@ import json
 import os
 import logging
 
-from tzlocal import get_localzone
-
 from .utils import Singleton
 
 
 DEFAULT_SETTINGS = json.dumps({
     "location": [],
-    "timezone": str(get_localzone()),
     "tags": [],
     "loggers": {},
     "watchers": {}

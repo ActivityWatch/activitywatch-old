@@ -1,5 +1,8 @@
+from copy import copy
+from itertools import groupby
 import unittest
 from datetime import datetime, timedelta
+from activitywatch.filter.chunker import floor_hour, ceil_hour, split_by_hour, overlaps_hours
 
 from activitywatch.base import Watcher, Activity, Logger
 from activitywatch.settings import Settings
@@ -29,7 +32,7 @@ class LoggerWatcherTest(unittest.TestCase):
         logger = MockLogger()
         logger.add_watcher(watcher)
 
-        watcher.add_activity(Activity("test", datetime.now()-timedelta(days=1), datetime.now()))
+        watcher.dispatch_activity(Activity("test", datetime.now()-timedelta(days=1), datetime.now()))
 
         activities = logger.flush_activities()
         self.assertTrue(len(activities) == 1)
@@ -51,3 +54,34 @@ class SettingsTest(unittest.TestCase):
         self.assertIs(Settings(), Settings())
 
 
+
+class SplitActivityTest(unittest.TestCase):
+    def test_by_hour(self):
+        dt = datetime(2015, 1, 1, 8, 30)
+        td = timedelta(hours=3, minutes=23)
+        activity = Activity([], dt, dt+td)
+
+        split = split_by_hour([copy(activity), copy(activity)])
+        self.assertEquals(len(split), 8)
+
+        split = split_by_hour([Activity([], dt, dt+timedelta(minutes=2))])
+        self.assertEquals(len(split), 1)
+
+    def test_ceil_hour(self):
+        self.assertEquals(ceil_hour(datetime(2015, 1, 1, 6, 2)), datetime(2015, 1, 1, 7))
+        self.assertEquals(ceil_hour(datetime(2015, 1, 1, 6, 2)), ceil_hour(datetime(2015, 1, 1, 6, 58)))
+        self.assertNotEquals(ceil_hour(datetime(2015, 1, 1, 5, 2)), ceil_hour(datetime(2015, 1, 1, 6, 4)))
+
+    def test_floor_hour(self):
+        self.assertEquals(floor_hour(datetime(2015, 1, 1, 6, 2)), datetime(2015, 1, 1, 6))
+        self.assertEquals(floor_hour(datetime(2015, 1, 1, 6, 2)), floor_hour(datetime(2015, 1, 1, 6, 5)))
+
+    def test_overlaps_hour(self):
+        activity = Activity([], datetime(2015, 1, 1, 5, 23), datetime(2015, 1, 1, 6, 6))
+        self.assertTrue(overlaps_hours(activity))
+
+        activity = Activity([], datetime(2015, 1, 1, 5, 23), datetime(2015, 1, 1, 6, 0, 0, 1))
+        self.assertTrue(overlaps_hours(activity))
+
+        activity = Activity([], datetime(2015, 1, 1, 6, 30), datetime(2015, 1, 1, 6, 59))
+        self.assertFalse(overlaps_hours(activity))

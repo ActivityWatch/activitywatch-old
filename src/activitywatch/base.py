@@ -10,7 +10,7 @@ from .settings import Settings, SettingsException
 
 
 class Activity(dict):                                                                    
-    def __init__(self, tags: str or "list[str]", started_at, ended_at, **kwargs):
+    def __init__(self, tags: str or "list[str]", started_at: datetime, ended_at: datetime, **kwargs):
         dict.__init__(self)
         self["tags"] = tags
         if "cmd" in kwargs:
@@ -27,19 +27,40 @@ class Activity(dict):
         msg += "Logged activity '{}':".format(tags)
         msg += "  Started: {}".format(self["start"])
         msg += "  Ended: {}".format(self["end"])
-        msg += "  Duration: {}".format(self.duration())
+        msg += "  Duration: {}".format(self.duration)
         if "cmd" in self:
             msg += "  Command: {}".format(self["cmd"])
         logging.debug(msg)
 
+    @property
+    def start(self) -> datetime:
+        return self["start"]
+
+    @start.setter
+    def start(self, start: datetime):
+        self["start"] = start
+
+    @property
+    def end(self) -> datetime:
+        return self["end"]
+
+    @end.setter
+    def end(self, end: datetime):
+        self["end"] = end
+
+    @property
+    def tags(self) -> "list[str]":
+        return self["tags"]
+
+    @property
     def duration(self) -> timedelta:
-        return self["end"] - self["start"]
+        return self.end - self.start
 
     def to_zenobase_event(self) -> pyzenobase.ZenobaseEvent:
         # TODO: Add misc fields into note field
-        data = {"tag": self["tags"],
-                "timestamp": self["start"],
-                "duration": self.duration().total_seconds()*1000}
+        data = {"tag": self.tags,
+                "timestamp": self.start,
+                "duration": self.duration.total_seconds()*1000}
         return pyzenobase.ZenobaseEvent(data)
 
     def to_json_dict(self) -> dict:
@@ -86,22 +107,14 @@ class Agent(threading.Thread):
 
     @property
     def agent_type(self) -> str:
-        if isinstance(self, Logger):
-            return "logger"
-        elif isinstance(self, Filter):
+        if isinstance(self, Filter):
             return "filter"
+        elif isinstance(self, Logger):
+            return "logger"
         elif isinstance(self, Watcher):
             return "watcher"
         else:
             raise Exception("Unknown agent type")
-
-    @abstractmethod
-    def add_activity(self, activity: "Activity"):
-        pass
-
-    def add_activities(self, activities: "Activity"):
-        for activity in activities:
-            self.add_activity(activity)
 
     @property
     def default_settings(self):
@@ -135,6 +148,10 @@ class Logger(Agent):
             raise TypeError("{} is not an Activity".format(activity))
         with self._activities_lock:
             self._activities.append(activity)
+
+    def add_activities(self, activities: "Activity"):
+        for activity in activities:
+            self.add_activity(activity)
 
     def flush_activities(self) -> "list[Activity]":
         with self._activities_lock:
@@ -181,15 +198,19 @@ class Watcher(Agent):
 
         self.loggers.add(logger)
         if self not in logger.watchers:
-            logger.add_watcher(logger)
+            logger.add_watcher(self)
 
     def add_loggers(self, loggers: "list[Logger]"):
         for logger in loggers:
             self.add_logger(logger)
 
-    def add_activity(self, activity: Activity):
+    def dispatch_activity(self, activity: Activity):
         for logger in self.loggers:
             logger.add_activity(activity)
+
+    def dispatch_activities(self, activities: "list[Activity]"):
+        for activity in activities:
+            self.dispatch_activity(activity)
 
 
 class Filter(Logger, Watcher):

@@ -17,7 +17,6 @@ app.config(function($routeProvider, $locationProvider) {
         controller: "AgentsCtrl"
     });
 
-
     $locationProvider.html5Mode(true);
 });
 
@@ -36,9 +35,7 @@ function capitalize(s) {
 
 app.controller("BreadcrumbCtrl", function($scope, $location) {
     var generate_pathtree = function() {
-        console.log($location.path());
         var dirs = $location.path() == "/" ? [] : $location.path().substr(1).split("/");
-        console.log(dirs);
         return _.map(dirs, function(dirname, i, ctx) {
             var link = i == 0 ? "" : _.reduce(ctx.splice(0, i), function(a, b) { return a+"/"+b }) + "/";
             return {
@@ -51,7 +48,6 @@ app.controller("BreadcrumbCtrl", function($scope, $location) {
 
     $scope.$on("$routeChangeSuccess", function() {
         $scope.pathtree = generate_pathtree();
-        console.log($scope.pathtree);
     });
 });
 
@@ -87,7 +83,6 @@ app.controller("AgentCtrl", function($scope, $resource, $routeParams) {
     var Agents = $resource("/api/0/agents/" + $routeParams.id);
 
     Agents.get({"id": $routeParams.id}, function(agent) {
-        console.log(agent);
         $scope.agent = agent;
     });
 });

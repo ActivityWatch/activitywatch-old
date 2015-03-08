@@ -4,6 +4,7 @@ from .settings import Settings, SettingsException
 
 from . import loggers
 from . import watchers
+from . import filters
 
 
 def start():
@@ -23,19 +24,21 @@ def start():
     # Create Watchers
     if platform.system() == "Linux":
         windowwatcher = watchers.X11Watcher()
-    elif platform.system() == "Darwin":
-        windowwatcher = watchers.OSXWatcher()
+    #elif platform.system() == "Darwin":
+    #    windowwatcher = watchers.OSXWatcher()
     else:
         raise Exception("Sorry, only Linux is currently supported, stay tuned for updates or contribute module for your operating system.")
     afkwatcher = watchers.AFKWatcher()
 
-    # Add loggers and watchers to ModuleManager
-    mm.add_agents([zenobaselogger, jsonlogger, windowwatcher, afkwatcher, restlogger, mongodblogger])
+    # Create filters
+    splitfilter = filters.SplitFilter()
 
-    # Connect watchers to loggers
-    zenobaselogger.add_watchers(mm.watchers)
-    jsonlogger.add_watchers(mm.watchers)
-    mongodblogger.add_watchers(mm.watchers)
+    # Add loggers and watchers to ModuleManager
+    mm.add_agents([zenobaselogger, jsonlogger, windowwatcher, afkwatcher, restlogger, mongodblogger, splitfilter])
+
+    # Data from all watchers to all loggers should go through the splitfilter
+    splitfilter.add_watchers(mm.watchers)
+    splitfilter.add_loggers(mm.loggers)
 
     # Start Loggers
     mm.start_agents()

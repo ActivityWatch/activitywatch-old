@@ -38,7 +38,7 @@ class AFKWatcher(Watcher):
             logging.debug("Tried to set to what already was")
             return
 
-        self.add_activity(Activity([("non-" if boolean else "")+"AFK"], self.afk_changed, self.now))
+        self.dispatch_activity(Activity([("non-" if boolean else "")+"AFK"], self.afk_changed, self.now))
 
         self._is_afk = boolean
         self.afk_changed = datetime.now()

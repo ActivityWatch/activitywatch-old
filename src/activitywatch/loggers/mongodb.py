@@ -14,7 +14,7 @@ class MongoDBLogger(Logger):
 
     def run(self):
         while True:
-            sleep(60)
+            sleep(10)
             activities = self.flush_activities()
             if len(activities) == 0:
                 continue
