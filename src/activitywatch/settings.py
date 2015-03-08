@@ -7,6 +7,7 @@ from .utils import Singleton
 
 DEFAULT_SETTINGS = json.dumps({
     "location": [],
+    "timezone": "Europe/Stockholm",
     "tags": [],
     "loggers": {
         "zenobase": {
@@ -38,6 +39,8 @@ class Settings(dict):
         if not os.path.exists(confpath):
             with open(confpath, "w+") as f:
                 f.write(DEFAULT_SETTINGS)
+                logging.warning("""Wrote default config to file,
+please change the default values according to your preference. It is located in $HOME/.activitywatch.json""")
         with open(confpath) as f:
             self.update(json.loads(f.read()))
 

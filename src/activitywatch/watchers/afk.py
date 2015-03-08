@@ -11,7 +11,7 @@ from ..base import Watcher, Activity
 class AFKWatcher(Watcher):
     """Watches for keyboard & mouse activity and creates (not-)AFK events accordingly"""
 
-    NAME = "afk"
+    identifier = "afk"
 
     def __init__(self):
         # TODO: (nice to have) Xbox 360 controller usage

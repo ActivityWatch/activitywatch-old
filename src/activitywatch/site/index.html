@@ -30,28 +30,40 @@
 </head>
 <body>
 <div ng-controller="MainCtrl">
-    <div class="container">
-        <a href="/">
-            <div class="row">
-                <div class="col-md-12 text-center" style="border-bottom: 1px solid #DDD; padding-bottom: 1em; margin-bottom: 1em;">
-                    <h1>ActivityWatch</h1>
-                </div>
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">ActivityWatch</a>
             </div>
-        </a>
-
+        </div>
+    </nav>
+    <div class="container">
         <div class="row">
             <div class="col-md-10">
+                <ol class="breadcrumb" ng-controller="BreadcrumbCtrl">
+                    <li ng-class="{'active': pathtree.length == 0}">
+                        <a href="/">Home</a>
+                    </li>
+                    <li ng-repeat="path in pathtree">
+                        <span ng-switch="$last">
+                            <a ng-switch-when="false" ng-href="{{path.link}}">{{path.name}}</a>
+                            <span ng-switch-when="true" ng-class="active">{{path.name}}</span>
+                        </span>
+
+                    </li>
+                </ol>
                 <div ng-view></div>
             </div>
-            <div ng-controller="AgentsCtrl" class="col-md-2">
+            <div ng-controller="AgentListCtrl" class="col-md-2">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <b>Agents</b>
+                        <i class="fa fa-heartbeat"></i>
+                        <b>Status</b>
                         <a ng-click="update_agents()" style="cursor: pointer; float: right;"><i class="fa fa-refresh" ng-class="{'fa-spin': refreshing}"></i></a>
                     </div>
                     <!-- TODO: Replace well-sm with better class such as some kind of panel-sm -->
                     <div class="panel-body well-sm">
-                        <table class="table" ng-repeat="(type, agents) in agents" style="margin-bottom: 0.5em;">
+                        <table class="table table-hover" ng-repeat="(type, agents) in agents" style="margin-bottom: 0.5em;">
                             <tr>
                                 <th colspan="2" ng-switch="type" style="border-top: 0">
                                     <span ng-switch-when="logger">Loggers</span>
@@ -59,7 +71,7 @@
                                     <span ng-switch-when="filter">Filters</span>
                                 </th>
                             </tr>
-                            <tr ng-repeat="agent in agents" ng-click="$location.url('/agent/'+agent.id)" style="cursor: pointer;">
+                            <tr ng-repeat="agent in agents" ng-click="$location.url('/agents/'+agent.threadId)" style="cursor: pointer;">
                                 <td class="agent-status" ng-switch="agent.alive">
                                     <span ng-switch-when="true" class="alive glyphicon glyphicon-ok"></span>
                                     <span ng-switch-when="false" class="dead glyphicon glyphicon-cancel"></span>

@@ -16,7 +16,7 @@ class X11Watcher(Watcher):
     """Watches activity in X11"""
     # TODO: Move window helper functions to container class for xlib's Window
 
-    NAME = "x11"
+    identifier = "x11"
 
     def __init__(self):
         Watcher.__init__(self)

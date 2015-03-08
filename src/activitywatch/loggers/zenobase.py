@@ -7,8 +7,6 @@ from ..settings import SettingsException
 
 
 class ZenobaseLogger(Logger):
-    NAME = "zenobase"
-
     def __init__(self):
         Logger.__init__(self)
 

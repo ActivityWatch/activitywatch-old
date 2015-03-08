@@ -4,8 +4,6 @@ from ..base import Logger
 
 
 class StdOutLogger(Logger):
-    NAME = "stdout"
-
     def __init__(self):
         Logger.__init__(self)
 

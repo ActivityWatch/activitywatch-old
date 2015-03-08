@@ -9,8 +9,6 @@ from ..settings import Settings, SettingsException
 
 
 class JSONLogger(Logger):
-    NAME = "json"
-
     def __init__(self):
         Logger.__init__(self)
 
