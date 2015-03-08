@@ -10,9 +10,8 @@ class ZenobaseLogger(Logger):
     def __init__(self):
         Logger.__init__(self)
 
-        in_settings_and_not_false = lambda x: x in self.settings and self.settings[x]
-        if not all(map(in_settings_and_not_false, ["username", "password", "bucket"])):
-            raise SettingsException("invalid zenobase config")
+        if not self.settings["username"] or not self.settings["password"]:
+            raise SettingsException("username or password was empty in settings")
 
         self.api = pyzenobase.ZenobaseAPI(self.settings["username"], self.settings["password"])
         self.bucket_id = self.api.create_or_get_bucket(self.settings["bucket"])["@id"]
@@ -27,3 +26,10 @@ class ZenobaseLogger(Logger):
             if len(zenobase_events) > 0:
                 self.api.create_events(self.bucket_id, zenobase_events)
                 logging.info("Uploaded {} events to Zenobase".format(len(zenobase_events)))
+
+    def default_settings(self):
+        return {
+            "bucket": "ActivityWatch",
+            "username": "",
+            "password": ""
+        }

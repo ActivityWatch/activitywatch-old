@@ -60,6 +60,9 @@ class AFKWatcher(Watcher):
             if not self.is_afk and passed_afk:
                 self.is_afk = True
 
+    def default_settings(self):
+        return {"timeout": 300}
+
 
 class KeyboardListener(PyKeyboardEvent):
     def __init__(self, watcher):

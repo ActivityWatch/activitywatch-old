@@ -2,29 +2,17 @@ import json
 import os
 import logging
 
+from tzlocal import get_localzone
+
 from .utils import Singleton
 
 
 DEFAULT_SETTINGS = json.dumps({
     "location": [],
-    "timezone": "Europe/Stockholm",
+    "timezone": str(get_localzone()),
     "tags": [],
-    "loggers": {
-        "zenobase": {
-            "bucket": "ActivityWatch",
-            "username": "FILL ME IN",
-            "password": "FILL ME IN"
-        },
-        "json": {
-            "filename": "output.json"
-        }
-    },
-    "watchers": {
-        "x11": {},
-        "afk": {
-            "timeout": 300
-        }
-    }
+    "loggers": {},
+    "watchers": {}
 }, indent=4)
 
 

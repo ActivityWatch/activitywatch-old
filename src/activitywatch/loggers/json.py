@@ -48,3 +48,6 @@ class JSONLogger(Logger):
                     f.seek(0)
                     json.dump(data, f, indent=4)
                 logging.info("Saved {} activities to JSON".format(len(activities)))
+
+    def default_settings(self):
+        return {"filename": "output.json"}
