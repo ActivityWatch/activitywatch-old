@@ -53,7 +53,7 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     package_dir={'': 'src'},
-    packages=["activitywatch"],
+    packages=find_packages("src"),
 
     include_package_data=True,
     package_data={'': ['*.html', '*.js', '*.css']},

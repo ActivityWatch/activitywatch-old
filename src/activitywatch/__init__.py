@@ -51,7 +51,7 @@ def start():
         mm.add_agent(windowwatcher)
         mm.add_agent(afkwatcher)
 
-        mm.add_agent(watchers.rest.RestLogger())
+        mm.add_agent(loggers.RestLogger())
 
         # Start Loggers
         mm.start_agents()

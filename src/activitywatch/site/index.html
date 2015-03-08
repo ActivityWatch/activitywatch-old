@@ -48,7 +48,8 @@
                         <b>Agents</b>
                         <a ng-click="update_agents()" style="cursor: pointer; float: right;"><span class="glyphicon glyphicon-refresh"></span></a>
                     </div>
-                    <div class="panel-body">
+                    <!-- TODO: Replace well-sm with better class such as some kind of panel-sm -->
+                    <div class="panel-body well-sm">
                         <table class="table" ng-repeat="(type, agents) in agents" style="margin-bottom: 0.5em;">
                             <tr>
                                 <th colspan="2" ng-switch="type" style="border-top: 0">
