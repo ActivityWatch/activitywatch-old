@@ -2,7 +2,7 @@ from copy import copy
 from itertools import groupby
 import unittest
 from datetime import datetime, timedelta
-from activitywatch.filter.chunker import floor_hour, ceil_hour, split_by_hour, overlaps_hours
+from activitywatch.filters.split import floor_hour, ceil_hour, split_by_hour, overlaps_hours
 
 from activitywatch.base import Watcher, Activity, Logger
 from activitywatch.settings import Settings
