@@ -16,6 +16,8 @@ class MongoDBLogger(Logger):
         while True:
             sleep(60)
             activities = self.flush_activities()
+            if len(activities) == 0:
+                continue
             for activity in activities:
                 self.collection.insert(activity.to_json_dict())
             logging.info("Logged {} activities to MongoDB".format(len(activities)))
