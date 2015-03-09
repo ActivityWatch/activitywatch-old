@@ -13,8 +13,8 @@ def next_hour(now=datetime.now()) -> datetime:
     return hour_history(1, now)
 
 
-def hour_history(offset: int, now: int=datetime.now()) -> datetime:
-    return floor_hour(now).replace(hour=now.hour+offset)
+def hour_history(offset: int, now: datetime=datetime.now()) -> datetime:
+    return floor_hour(now) + timedelta(hours=offset)
 
 
 def floor_hour(dt: datetime) -> datetime:
@@ -22,14 +22,14 @@ def floor_hour(dt: datetime) -> datetime:
 
 
 def ceil_hour(dt: datetime) -> datetime:
-    return floor_hour(dt).replace(hour=dt.hour+1)
+    return floor_hour(dt) + timedelta(hours=1)
 
 
-def overlaps_hours(activity):
+def overlaps_hours(activity) -> bool:
     return floor_hour(activity.start) != floor_hour(activity.end)
 
 
-def split_by_hour(activities):
+def split_by_hour(activities) -> "list[Activity]":
     non_overlapping = list(filter(lambda x: not overlaps_hours(x), activities))
     overlapping = filter(overlaps_hours, activities)
 
@@ -57,4 +57,4 @@ class SplitFilter(Filter):
             if len(activities) == 0:
                 continue
             self.dispatch_activities(activities)
-            logging.info("Chunkerfilter dispatched {} activities".format(len(activities)))
+            logging.info("SplitFilter dispatched {} activities".format(len(activities)))

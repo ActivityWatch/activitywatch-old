@@ -74,7 +74,7 @@
                             <tr ng-repeat="agent in agents" ng-click="$location.url('/agents/'+agent.threadId)" style="cursor: pointer;">
                                 <td class="agent-status" ng-switch="agent.alive">
                                     <span ng-switch-when="true" class="alive glyphicon glyphicon-ok"></span>
-                                    <span ng-switch-when="false" class="dead glyphicon glyphicon-cancel"></span>
+                                    <span ng-switch-when="false" class="dead glyphicon glyphicon-remove"></span>
                                 </td>
                                 <td>
                                     {{agent.name}}
