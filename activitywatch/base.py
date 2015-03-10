@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import pyzenobase
 from .settings import Settings, SettingsException
 
-from typing import Iterable, List, Set, Optional
+from typing import Iterable, List, Set
 
 
 class Activity(dict):
