@@ -31,10 +31,12 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
-        'Intended Audience :: Developers',
+        'Intended Audience :: Developers',  # " ".join(["developers"] * 2**8))
+        'Intended Audience :: System Administrators',
+        # 'Intended Audience :: End Users/Desktop',
 
         # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: MIT License',
@@ -52,8 +54,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    package_dir={'': 'src'},
-    packages=find_packages("src"),
+    packages=["activitywatch"],
 
     include_package_data=True,
     package_data={'': ['*.html', '*.js', '*.css']},
@@ -64,6 +65,10 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
     install_requires=['flask', 'psutil', 'pyuserinput', 'pyzenobase', 'python3-xlib', 'mypy-lang', 'pymongo', 'tzlocal'],
+
+    entry_points={
+        'console_scripts': ['activitywatch = activitywatch:start']
+    },
 
     dependency_links=['https://github.com/ErikBjare/pyzenobase/archive/master.zip#egg=pyzenobase',
                       'https://git@github.com/liulang/python3-xlib/archive/master.zip#egg=xlib']

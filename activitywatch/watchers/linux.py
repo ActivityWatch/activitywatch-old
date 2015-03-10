@@ -134,7 +134,7 @@ class X11Watcher(Watcher):
                 break
         return name, cls
 
-    def get_window_pid(self, window: Window) -> int or str:
+    def get_window_pid(self, window: Window) -> str:
         atom = self.display.get_atom("_NET_WM_PID")
         pid_property = window.get_full_property(atom, X.AnyPropertyType)
         if pid_property:
@@ -148,5 +148,5 @@ class X11Watcher(Watcher):
         return self.get_window_pid(self.active_window)
 
     @staticmethod
-    def process_by_pid(pid: str or int) -> psutil.Process:
+    def process_by_pid(pid: str) -> psutil.Process:
         return psutil.Process(int(pid))

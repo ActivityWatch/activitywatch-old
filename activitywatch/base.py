@@ -1,4 +1,5 @@
-from abc import abstractmethod, ABCMeta, abstractproperty
+from time import sleep
+from abc import abstractmethod
 import json
 import logging
 
@@ -8,9 +9,14 @@ from datetime import datetime, timedelta
 import pyzenobase
 from .settings import Settings, SettingsException
 
+from typing import Iterable, List, Set, Optional
 
-class Activity(dict):                                                                    
-    def __init__(self, tags: str or "list[str]", started_at: datetime, ended_at: datetime, **kwargs):
+
+class Activity(dict):
+    """
+    Used to represents an activity or event.
+    """
+    def __init__(self, tags: List[str], started_at: datetime, ended_at: datetime, **kwargs):
         dict.__init__(self)
         self["tags"] = tags
         if "cmd" in kwargs:
@@ -49,7 +55,7 @@ class Activity(dict):
         self["end"] = end
 
     @property
-    def tags(self) -> "list[str]":
+    def tags(self) -> List[str]:
         return self["tags"]
 
     @property
@@ -78,7 +84,7 @@ class Agent(threading.Thread):
     """Base class for Watchers, Filters and Watchers"""
 
     def __init__(self):
-        # TODO: This will cause problems with Filters which will run both Watcher.__init__ and Logger.__init__
+        # TODO: This will run twice for Filters which will run both Watcher.__init__ and Logger.__init__
         threading.Thread.__init__(self, name=self.__class__.__name__)
 
     @abstractmethod
@@ -107,6 +113,10 @@ class Agent(threading.Thread):
 
     @property
     def agent_type(self) -> str:
+        """
+        Returns the agent_type of the Agent,
+        can be "filter", "logger" or "watcher.
+        """
         if isinstance(self, Filter):
             return "filter"
         elif isinstance(self, Logger):
@@ -132,35 +142,78 @@ class Logger(Agent):
 
     def __init__(self):
         Agent.__init__(self)
-        self.watchers = set()
+        self.watchers = set()  # type: Set[Watcher]
 
         # Must be thread-safe
         self._activities = []
         self._activities_lock = threading.Lock()
+        self._activities_in_queue_event = threading.Event()
 
     # Only here to keep editor from complaining about unimplemented method
-    @abstractmethod
     def run(self):
-        pass
+        while True:
+            self.wait()
+            activities = self.flush_activities()
+            if len(activities) > 0:
+                self.log(activities)
+                logging.info("{} logged {} activities".format(self.name, len(activities)))
+
+    @abstractmethod
+    def wait(self):
+        """
+        Usually runs `sleep(10)` or `self.wait_for_activities()`
+        """
+
+    @abstractmethod
+    def log(self, activities: List[Activity]):
+        """
+        Do whatever you wish to activities
+        """
+
+    # TODO: Use Optional[int] type annotation when the new mypy is on PyPI
+    def wait_for_activities(self, timeout: int=None):
+        """
+        Blocks until there are activities in the queue
+        to be retrieved with flush_activities
+        """
+        self._activities_in_queue_event.wait(timeout)
+
+    @property
+    def has_activities_in_queue(self) -> bool:
+        return self._activities_in_queue_event.is_set()
 
     def add_activity(self, activity: Activity):
+        """
+        Adds a single activity to the queue
+        """
         if not isinstance(activity, Activity):
             raise TypeError("{} is not an Activity".format(activity))
         with self._activities_lock:
             self._activities.append(activity)
+            self._activities_in_queue_event.set()
 
-    def add_activities(self, activities: "Activity"):
+    def add_activities(self, activities: Iterable[Activity]):
+        """
+        Adds an iterable of activities to the queue
+        """
         for activity in activities:
             self.add_activity(activity)
 
-    def flush_activities(self) -> "list[Activity]":
+    def flush_activities(self) -> List[Activity]:
+        """
+        Retrieves, removes and then returns all activities from the queue
+        """
         with self._activities_lock:
             activities = self._activities
             self._activities = []
+            self._activities_in_queue_event.clear()
         return activities
 
-    def add_watcher(self, watcher: "Watcher"):
-        """Start listening to watchers here"""
+    def add_watcher(self, watcher: 'Watcher'):
+        """
+        Adds a watcher to the logger, if the logger isn't
+        registered with the watcher it sets that up as well.
+        """
         if not isinstance(watcher, Watcher):
             raise TypeError("{} is not a Watcher".format(watcher))
 
@@ -168,7 +221,10 @@ class Logger(Agent):
         if self not in watcher.loggers:
             watcher.add_logger(self)
 
-    def add_watchers(self, watchers: "list[Watcher]"):
+    def add_watchers(self, watchers: 'Iterable[Watcher]'):
+        """
+        Does the same as add_watcher, but for an iterable of watchers.
+        """
         for watcher in watchers:
             self.add_watcher(watcher)
 
@@ -184,7 +240,7 @@ class Watcher(Agent):
 
     def __init__(self):
         Agent.__init__(self)
-        self.loggers = set()
+        self.loggers = set()  # type: Set[Logger]
 
     # Only here to keep editor from complaining about unimplemented method
     @abstractmethod
@@ -192,7 +248,10 @@ class Watcher(Agent):
         pass
 
     def add_logger(self, logger: Logger):
-        """Should only be called from Logger.add_watcher"""
+        """
+        Adds a single logger to the watcher, if the watcher isn't
+        registered with the logger it sets that up as well.
+        """
         if not isinstance(logger, Logger):
             raise TypeError("{} was not a Logger".format(logger))
 
@@ -200,17 +259,23 @@ class Watcher(Agent):
         if self not in logger.watchers:
             logger.add_watcher(self)
 
-    def add_loggers(self, loggers: "list[Logger]"):
+    def add_loggers(self, loggers: Iterable[Logger]):
         for logger in loggers:
             self.add_logger(logger)
 
     def dispatch_activity(self, activity: Activity):
+        """
+        Sends a single activity to the queues of all listening loggers.
+        """
         for logger in self.loggers:
             logger.add_activity(activity)
 
-    def dispatch_activities(self, activities: "list[Activity]"):
-        for activity in activities:
-            self.dispatch_activity(activity)
+    def dispatch_activities(self, activities: Iterable[Activity]):
+        """
+        Sends a iterable of activities to the queues of all listening loggers.
+        """
+        for logger in self.loggers:
+            logger.add_activities(activities)
 
 
 class Filter(Logger, Watcher):
@@ -226,7 +291,28 @@ class Filter(Logger, Watcher):
         Logger.__init__(self)
         Watcher.__init__(self)
 
-    # Only here to keep editor from complaining about unimplemented method
     @abstractmethod
-    def run(self):
+    def process(self, activities: List[Activity]) -> List[Activity]:
+        """
+        Does a set of operations on the activities
+        """
         pass
+
+    @abstractmethod
+    def wait(self):
+        pass
+
+    def run(self):
+        while True:
+            self.wait()
+            activities = self.flush_activities()
+            if len(activities) == 0:
+                continue
+
+            try:
+                activities = self.process(activities)
+            except Exception as e:
+                logging.error("Error while trying to process activities")
+
+            self.dispatch_activities(activities)
+            logging.info("{} dispatched {} activities".format(self.name, len(activities)))
