@@ -23,7 +23,6 @@ class ZenobaseLogger(Logger):
     def log(self, activities: List[Activity]):
         zenobase_events = list(map(lambda x: x.to_zenobase_event(), activities))
         self.api.create_events(self.bucket_id, zenobase_events)
-        logging.info("Uploaded {} events to Zenobase".format(len(zenobase_events)))
 
     def default_settings(self):
         return {
