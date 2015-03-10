@@ -6,3 +6,6 @@ output.json
 build
 dist
 *.egg-info
+
+# Custom scripts
+create_virtualenv.sh
