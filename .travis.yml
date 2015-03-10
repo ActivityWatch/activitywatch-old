@@ -15,4 +15,4 @@ before_script:
     - true
 
 script:
-    - python -m unittest discover -s ./src/tests -p '*.py'
+    - python -m unittest discover -s ./tests -p '*.py'
