@@ -155,8 +155,13 @@ class Logger(Agent):
             self.wait()
             activities = self.flush_activities()
             if len(activities) > 0:
-                self.log(activities)
-                logging.info("{} logged {} activities".format(self.name, len(activities)))
+                try:
+                    self.log(activities)
+                    logging.info("{} logged {} activities".format(self.name, len(activities)))
+                except Exception:
+                    logging.error("An error occurred while trying to log activities, " +
+                                  "readding {} activities to log-queue.".format(len(activities)), exc_info=True)
+                    self.add_activities(activities)
 
     @abstractmethod
     def wait(self):
@@ -302,6 +307,9 @@ class Filter(Logger, Watcher):
     def wait(self):
         pass
 
+    def log(self, activities: List[Activity]):
+        self.dispatch_activities(activities)
+
     def run(self):
         while True:
             self.wait()
@@ -313,6 +321,7 @@ class Filter(Logger, Watcher):
                 activities = self.process(activities)
             except Exception as e:
                 logging.error("Error while trying to process activities")
+                break
 
-            self.dispatch_activities(activities)
+            self.log(activities)
             logging.info("{} dispatched {} activities".format(self.name, len(activities)))

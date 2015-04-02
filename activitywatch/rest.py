@@ -3,8 +3,7 @@ import json
 from flask import Flask, make_response
 import logging
 
-from activitywatch.modulemanager import ModuleManager
-from activitywatch.base import Logger
+from .modulemanager import ModuleManager
 
 app = Flask(__name__, static_url_path='', static_folder='../site')
 
@@ -54,9 +53,5 @@ def templates(file):
     return app.send_static_file("templates/" + file)
 
 
-class RestLogger(Logger):
-    def run(self):
-        app.run()
-
 if __name__ == "__main__":
-    RestLogger().start()
+    app.run()

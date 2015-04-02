@@ -33,20 +33,32 @@ setup(
         #   5 - Production/Stable
         'Development Status :: 4 - Beta',
 
+        # Pick your license as you wish (should match "license" above)
+        'License :: OSI Approved :: MIT License',
+
         # Indicate who your project is intended for
         'Intended Audience :: Developers',  # " ".join(["developers"] * 2**8))
         'Intended Audience :: System Administrators',
         # 'Intended Audience :: End Users/Desktop',
 
-        # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: MIT License',
+        'Topic :: Office/Business',
+        'Topic :: System :: Monitoring',
+        'Topic :: System :: Logging',
+        'Topic :: Utilities',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+
+        'Operating System :: POSIX :: Linux',
+        # 'Operating System :: MacOS :: MacOS X',
+        # 'Operating System :: Microsoft :: Windows',
+
+        'Environment :: X11 Applications',
+        # 'Environment :: MacOS X',
+        # 'Environment :: Win32 (MS Windows)',
     ],
 
     # What does your project relate to?

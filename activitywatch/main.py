@@ -1,6 +1,6 @@
-from . import ModuleManager, loggers, watchers, filters
-
-__author__ = 'erb'
+from . import loggers, watchers, filters
+from . import ModuleManager
+from . import rest
 
 
 def start():
@@ -14,7 +14,6 @@ def start():
     # Create Loggers
     zenobaselogger = loggers.ZenobaseLogger()
     jsonlogger = loggers.JSONLogger()
-    restlogger = loggers.RestLogger()
     mongodblogger = loggers.MongoDBLogger()
 
     # Create Watchers
@@ -30,7 +29,7 @@ def start():
     splitfilter = filters.SplitFilter()
 
     # Add loggers and watchers to ModuleManager
-    mm.add_agents([zenobaselogger, jsonlogger, windowwatcher, afkwatcher, restlogger, mongodblogger, splitfilter])
+    mm.add_agents([zenobaselogger, jsonlogger, windowwatcher, afkwatcher, mongodblogger, splitfilter])
 
     # Data from all watchers to all loggers should go through the splitfilter
     splitfilter.add_watchers(mm.watchers)
@@ -38,3 +37,10 @@ def start():
 
     # Start Loggers
     mm.start_agents()
+
+    # Start the REST server, blocking operation
+    rest.app.run()
+
+    logging.ERROR("activity-watch died for an unknown reason, restarting")
+    mm.stop_agents()
+    start()
