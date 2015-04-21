@@ -38,9 +38,13 @@ def start():
     # Start Loggers
     mm.start_agents()
 
-    # Start the REST server, blocking operation
-    rest.app.run()
+    try:
+        from . import gui
+        gui.main()
+    except ImportError:
+        # PyQt4 will fail import if not installed
+        pass
 
-    logging.ERROR("activity-watch died for an unknown reason, restarting")
-    mm.stop_agents()
-    start()
+
+    rest.start_server()
+    rest.join_server()

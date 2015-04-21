@@ -58,3 +58,11 @@ class ModuleManager():
         for agent in agents:
             if not agent.is_alive():
                 agent.start()
+
+    def stop_agents(self):
+        self._stop_agents(self.loggers)
+
+    def _stop_agents(agents: Iterable[Agent]):
+        for agent in agents:
+            if agent.is_alive():
+                agent.stop()

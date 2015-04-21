@@ -91,6 +91,9 @@ class Agent(threading.Thread):
     def run(self):
         pass
 
+    def stop(self):
+        raise NotImplementedError
+
     @property
     def identifier(self):
         """Identifier for agent, used in settings and as a module name shorter than the class name"""

@@ -1,10 +1,17 @@
 """
 A simple GUI test consisting only of a tray icon
 
+ToDo:
+ - Choose between PyQt or wxPython.
+
 Features:
- - Status indication
  - Open Web UI
+ - Status indication via disabled text and tray icon (Dropbox style)
  - Quit
+
+Requirements:
+ - ActivityWatch should be completely functional without this module and its dependencies (PyQt or wxPython).
+   - It might be wise to start considering dividing up the code into core- and gui-modules soon.
 """
 
 import sys
@@ -49,15 +56,15 @@ class SystemTrayIcon(QSystemTrayIcon):
         answer = QtGui.QMessageBox.question(None, '', "Are you sure you want to quit?", options, default)
         if answer == QtGui.QMessageBox.Yes:
             QApplication.quit()
+            from .rest import stop_server
+            stop_server()
 
-
-def sigint_handler(*args):
-    """Handles the SIGINT signal (Ctrl+C)"""
-    QApplication.quit()
 
 def main():
-    signal.signal(signal.SIGINT, sigint_handler)
+    threading.Thread(target=run, daemon=True).start()
 
+
+def run():
     app = QApplication(sys.argv)
     timer = QtCore.QTimer()
     timer.start(500)  # You may change this if you wish.
@@ -75,4 +82,6 @@ def main():
     # Exit
     sys.exit(exit_message)
 
-main()
+
+if __name__ == "__main__":
+    main()
