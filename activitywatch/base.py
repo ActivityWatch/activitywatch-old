@@ -112,7 +112,6 @@ class Agent(threading.Thread):
             settings[self.agent_type+"s"][self.identifier] = self.default_settings
             logging.warning("Settings for agent '{}' missing, creating entry with defaults")
         agentSettings = settings[self.agent_type+"s"][self.identifier]
-        print(agentSettings)
         return agentSettings
 
     @property
