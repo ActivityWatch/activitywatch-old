@@ -1,5 +1,5 @@
 import json
-import multiprocessing
+import threading
 import logging
 
 from flask import Flask, make_response, request
@@ -55,18 +55,6 @@ def templates(file):
     return app.send_static_file("templates/" + file)
 
 
-_process = None
-
 def start_server():
-    global _process
-    _process = multiprocessing.Process(target=app.run, daemon=True)
-    _process.start()
-    print("Started server")
-    print(_process)
-
-def join_server():
-    _process.join()
-
-def stop_server():
-    if _process and _process.is_alive():
-        _process.terminate()
+    thread = threading.Thread(target=app.run, daemon=True)
+    thread.start()

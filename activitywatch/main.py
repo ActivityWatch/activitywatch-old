@@ -45,6 +45,4 @@ def start():
         # PyQt4 will fail import if not installed
         pass
 
-
     rest.start_server()
-    rest.join_server()
