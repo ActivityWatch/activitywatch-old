@@ -7,7 +7,7 @@ import requests
 
 from .modulemanager import ModuleManager
 
-app = Flask(__name__, static_url_path='', static_folder='../site')
+app = Flask(__name__, static_url_path='', static_folder='./site')
 
 
 def agent_to_json(agent) -> dict:
