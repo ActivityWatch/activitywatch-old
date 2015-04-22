@@ -24,6 +24,7 @@ class ZenobaseLogger(Logger):
         zenobase_events = list(map(lambda x: x.to_zenobase_event(), activities))
         self.api.create_events(self.bucket_id, zenobase_events)
 
+    @property
     def default_settings(self):
         return {
             "bucket": "ActivityWatch",

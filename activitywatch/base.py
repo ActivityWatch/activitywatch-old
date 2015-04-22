@@ -108,11 +108,12 @@ class Agent(threading.Thread):
         if self.agent_type+"s" not in settings:
             raise SettingsException("settings file appears to be corrupt, root-level key {} not found"
                                     .format(self.agent_type + "s"))
-        if self.identifier in settings[self.agent_type+"s"]:
-            return settings[self.agent_type+"s"][self.identifier]
-        else:
-            settings[self.agent_type][self.identifier] = self.default_settings
+        if self.identifier not in settings[self.agent_type+"s"]:
+            settings[self.agent_type+"s"][self.identifier] = self.default_settings
             logging.warning("Settings for agent '{}' missing, creating entry with defaults")
+        agentSettings = settings[self.agent_type+"s"][self.identifier]
+        print(agentSettings)
+        return agentSettings
 
     @property
     def agent_type(self) -> str:
