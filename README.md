@@ -24,7 +24,7 @@ The first time you run the program, a configuration file will be created as `$HO
 
 #### Future usage
 A more user friendly approach to installation and usage might become available in the future.
-Such a release would have Python bundled for non-python3 systems (with py2app and py2exe, on Linux depends on Python 3.2 or higher).
+Such a release would have Python bundled for non-python3 systems (with py2app and py2exe, on Linux depends on Python 3.3 or higher).
 
 ## About
 
