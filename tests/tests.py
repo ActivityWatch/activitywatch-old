@@ -78,26 +78,26 @@ class SplitActivityTest(unittest.TestCase):
         activity = Activity([], dt, dt+td)
 
         split = split_by_interval([copy(activity), copy(activity)], interval=HOUR)
-        self.assertEquals(len(split), 8)
+        self.assertEqual(len(split), 8)
 
         activity.end += -td + timedelta(minutes=2)
         split = split_by_interval([copy(activity)], interval=HOUR)
-        self.assertEquals(len(split), 1)
+        self.assertEqual(len(split), 1)
 
     def test_ceil_hour(self):
         def ceil_hour(td):
             return ceil_datetime(td, td=timedelta(hours=1))
 
-        self.assertEquals(ceil_hour(datetime(2015, 1, 1, 6, 2)), datetime(2015, 1, 1, 7))
-        self.assertEquals(ceil_hour(datetime(2015, 1, 1, 6, 2)), ceil_hour(datetime(2015, 1, 1, 6, 58)))
-        self.assertNotEquals(ceil_hour(datetime(2015, 1, 1, 5, 2)), ceil_hour(datetime(2015, 1, 1, 6, 4)))
+        self.assertEqual(ceil_hour(datetime(2015, 1, 1, 6, 2)), datetime(2015, 1, 1, 7))
+        self.assertEqual(ceil_hour(datetime(2015, 1, 1, 6, 2)), ceil_hour(datetime(2015, 1, 1, 6, 58)))
+        self.assertNotEqual(ceil_hour(datetime(2015, 1, 1, 5, 2)), ceil_hour(datetime(2015, 1, 1, 6, 4)))
 
     def test_floor_hour(self):
         def floor_hour(td):
             return floor_datetime(td, td=timedelta(hours=1))
 
-        self.assertEquals(floor_hour(datetime(2015, 1, 1, 6, 2)), datetime(2015, 1, 1, 6))
-        self.assertEquals(floor_hour(datetime(2015, 1, 1, 6, 2)), floor_hour(datetime(2015, 1, 1, 6, 5)))
+        self.assertEqual(floor_hour(datetime(2015, 1, 1, 6, 2)), datetime(2015, 1, 1, 6))
+        self.assertEqual(floor_hour(datetime(2015, 1, 1, 6, 2)), floor_hour(datetime(2015, 1, 1, 6, 5)))
 
     def test_overlaps_hour(self):
         def overlaps_hours(td):
@@ -121,9 +121,9 @@ class ChunkTest(unittest.TestCase):
         activities = [Activity(["test"], start, start+interval*0.5),
                       Activity(["test2"], start+interval, start+interval*1.5),
                       Activity(["test"], start+interval*2, start+interval*2.5)]
-        self.assertEquals(3, len(activities))
+        self.assertEqual(3, len(activities))
 
         activities.append(Activity(["test"], start+interval, start+interval*1.5))
-        self.assertEquals(4, len(activities))
+        self.assertEqual(4, len(activities))
 
-        self.assertEquals(2, len(chunk_by_tags(activities)))
+        self.assertEqual(2, len(chunk_by_tags(activities)))
