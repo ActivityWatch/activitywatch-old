@@ -2,7 +2,7 @@
 A simple GUI test consisting only of a tray icon
 
 ToDo:
- - Choose between PyQt or wxPython.
+ - Choose between GTK, PyQt or wxPython.
 
 Features:
  - Open Web UI
@@ -19,6 +19,53 @@ import threading
 import signal
 import webbrowser
 
+from gi.repository import Gtk
+
+
+def show_about_dialog(self):
+    about_dialog = Gtk.AboutDialog()
+
+    #about_dialog.set_destroy_with_parent(True)
+    about_dialog.set_name("ActivityWatch")
+    about_dialog.set_version("0.1") # TODO: Get and set proper version
+    about_dialog.set_authors(["Erik Bjäreholt"])
+
+    about_dialog.run()
+    about_dialog.destroy()
+
+
+def open_popup_menu(icon, button, time):
+    print("Opening popup menu")
+    menu = Gtk.Menu()
+    about = Gtk.MenuItem(label="About")
+    about.connect("activate", show_about_dialog)
+    quit = Gtk.MenuItem(label="Quit")
+    quit.connect("activate", Gtk.main_quit)
+
+    menu.append(about)
+    menu.append(quit)
+
+    menu.show_all()
+
+    def pos(menu, icon):
+        return (Gtk.StatusIcon.position_menu(menu, icon))
+
+    menu.popup(None, None, pos, None, button, time)
+
+def open_dashboard(event):
+    print("Opening dashboard")
+    webbrowser.open("http://localhost:5000/")
+
+statusicon = Gtk.StatusIcon()
+statusicon.set_from_stock(Gtk.STOCK_HOME)
+statusicon.set_title("StatusIcon")
+statusicon.connect("popup-menu", open_popup_menu) # Right click
+statusicon.connect("activate", open_dashboard) # Left click
+
+def run():
+    Gtk.main()
+
+"""
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QSystemTrayIcon, QApplication, QMenu, QWidget, QIcon
 
@@ -28,7 +75,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         QSystemTrayIcon.__init__(self, icon, parent)
         menu = QMenu(parent)
         self.setToolTip("This is a tooltip\nThis is a second line")
-        
+
         openWebUIIcon = QIcon.fromTheme("open", QIcon("none"))
         openWebUIAction = menu.addAction(openWebUIIcon, "Open Dashboard", self.open_webui)
 
@@ -41,11 +88,12 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         exitIcon = QIcon.fromTheme("application-exit", QIcon("media/application_exit.png"))
         exitAction = menu.addAction(exitIcon, "Quit ActivityWatch", self.exit)
-        
+
         self.setContextMenu(menu)
 
     def open_webui(self):
         # TODO: Fetch proper URL from flask
+        print("Opening Web UI")
         webbrowser.open("localhost")
 
     def exit(self):
@@ -59,9 +107,6 @@ class SystemTrayIcon(QSystemTrayIcon):
             from .rest import stop_server
             stop_server()
 
-
-def main():
-    threading.Thread(target=run, daemon=True).start()
 
 
 def run():
@@ -81,6 +126,10 @@ def run():
 
     # Exit
     sys.exit(exit_message)
+"""
+
+def main():
+    threading.Thread(target=run, daemon=False).start()
 
 
 if __name__ == "__main__":
