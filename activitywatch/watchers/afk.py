@@ -35,14 +35,14 @@ class AFKWatcher(Watcher):
             self.last_activity = self.now
 
         if self._is_afk == boolean:
-            logging.debug("Tried to set to what already was")
+            #logging.debug("Tried to set to what already was")
             return
 
         self.dispatch_activity(Activity([("non-" if boolean else "")+"AFK"], self.afk_changed, self.now))
 
         self._is_afk = boolean
         self.afk_changed = datetime.now()
-        logging.info("Is " + ("now" if boolean else "no longer") + " AFK")
+        logging.debug("Is " + ("now" if boolean else "no longer") + " AFK")
 
     def run(self):
         self.now = datetime.now()
@@ -60,6 +60,7 @@ class AFKWatcher(Watcher):
             if not self.is_afk and passed_afk:
                 self.is_afk = True
 
+    @property
     def default_settings(self):
         return {"timeout": 300}
 
@@ -70,7 +71,6 @@ class KeyboardListener(PyKeyboardEvent):
         self.watcher = watcher
 
     def tap(self, keycode, character, press):
-        logging.debug("Tapped key: {}".format(keycode))
         self.watcher.is_afk = False
 
 
@@ -80,9 +80,9 @@ class MouseListener(PyMouseEvent):
         self.watcher = watcher
 
     def click(self, x, y, button, press):
-        logging.debug("Clicked mousebutton: {}".format(button))
+        #logging.debug("Clicked mousebutton: {}".format(button))
         self.watcher.is_afk = False
 
     def move(self, x, y):
-        logging.debug("Moved mouse to: {},{}".format(x, y))
+        #logging.debug("Moved mouse to: {},{}".format(x, y))
         self.watcher.is_afk = False

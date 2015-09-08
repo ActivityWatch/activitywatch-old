@@ -91,7 +91,7 @@ class X11Watcher(Watcher):
         while not success:
             success = self.update_active_window()
 
-        logging.info("First focus is '{}'".format(self.window_name))
+        logging.debug("First focus is '{}'".format(self.window_name))
 
         self.update_last_window()
 
@@ -114,7 +114,7 @@ class X11Watcher(Watcher):
         activity = Activity(self.last_cls, self.last_selected_at, datetime.now(), cmd=self.cmd)
         self.dispatch_activity(activity)
 
-        logging.info("Switched to '{}' with PID: {}".format(self.cls, self.pid))
+        logging.debug("Switched to '{}' with PID: {}".format(self.cls, self.pid))
 
         self.update_last_window()
 

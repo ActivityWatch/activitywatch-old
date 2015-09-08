@@ -13,7 +13,7 @@ class JSONLogger(Logger):
     def __init__(self):
         Logger.__init__(self)
 
-        if "filename" not in self.settings:
+        if "filename" not in self.settings.keys():
             raise SettingsException("filename wasn't defined in settings")
 
         if not os.path.isabs(self.settings["filename"]):
@@ -45,7 +45,8 @@ class JSONLogger(Logger):
 
             f.seek(0)
             json.dump(data, f, indent=4)
-        logging.info("Saved {} activities to JSON".format(len(activities)))
+        logging.debug("Saved {} activities to JSON".format(len(activities)))
 
+    @property
     def default_settings(self):
         return {"filename": "output.json"}
