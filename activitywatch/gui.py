@@ -1,8 +1,5 @@
 """
-A simple GUI test consisting only of a tray icon
-
-ToDo:
- - Choose between GTK, PyQt or wxPython.
+A GUI test consisting only of a tray icon
 
 Features:
  - Open Web UI
@@ -10,8 +7,7 @@ Features:
  - Quit
 
 Requirements:
- - ActivityWatch should be completely functional without this module and its dependencies (PyQt or wxPython).
-   - It might be wise to start considering dividing up the code into core- and gui-modules soon.
+ - ActivityWatch should be completely functional without this module and its dependencies (GTK3).
 """
 
 import sys
@@ -33,16 +29,43 @@ def show_about_dialog(self):
     about_dialog.run()
     about_dialog.destroy()
 
+toggleState = False
+
+def toggle_something(check):
+    global toggleState
+    toggleState = not toggleState
+    check.set_active(toggleState)
 
 def open_popup_menu(icon, button, time):
     print("Opening popup menu")
     menu = Gtk.Menu()
+
     about = Gtk.MenuItem(label="About")
-    about.connect("activate", show_about_dialog)
+
+    statusLine1 = Gtk.MenuItem(label="Status: Running")
+    statusLine2 = Gtk.MenuItem(label="  some status")
+    statusLine3 = Gtk.MenuItem(label="  more status...")
+
     quit = Gtk.MenuItem(label="Quit")
+
+    check = Gtk.CheckMenuItem(label="Checktest")
+    check.set_active(toggleState)
+
+    statusLine1.set_sensitive(toggleState)
+    statusLine2.set_sensitive(toggleState)
+    statusLine3.set_sensitive(toggleState)
+
+    about.connect("activate", show_about_dialog)
+    check.connect("toggled", toggle_something)
     quit.connect("activate", Gtk.main_quit)
 
     menu.append(about)
+    menu.append(check)
+    menu.append(Gtk.SeparatorMenuItem())
+    menu.append(statusLine1)
+    menu.append(statusLine2)
+    menu.append(statusLine3)
+    menu.append(Gtk.SeparatorMenuItem())
     menu.append(quit)
 
     menu.show_all()
@@ -57,7 +80,7 @@ def open_dashboard(event):
     webbrowser.open("http://localhost:5000/")
 
 statusicon = Gtk.StatusIcon()
-statusicon.set_from_stock(Gtk.STOCK_HOME)
+statusicon.set_from_stock(Gtk.STOCK_MEDIA_RECORD)
 statusicon.set_title("StatusIcon")
 statusicon.connect("popup-menu", open_popup_menu) # Right click
 statusicon.connect("activate", open_dashboard) # Left click
