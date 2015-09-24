@@ -29,8 +29,7 @@ class Activity(dict):
 
         self.update(kwargs)
 
-        msg = ""
-        msg += "Logged activity '{}':".format(tags)
+        msg = "Logged activity '{}':".format(tags).ljust(30)
         msg += "  Started: {}".format(self["start"])
         msg += "  Ended: {}".format(self["end"])
         msg += "  Duration: {}".format(self.duration)
@@ -160,7 +159,7 @@ class Logger(Agent):
             if len(activities) > 0:
                 try:
                     self.log(activities)
-                    logging.info("{} logged {} activities".format(self.name, len(activities)))
+                    logging.debug("{} logged {} activities".format(self.name, len(activities)))
                 except Exception:
                     logging.error("An error occurred while trying to log activities, " +
                                   "readding {} activities to log-queue.".format(len(activities)), exc_info=True)
@@ -327,4 +326,4 @@ class Filter(Logger, Watcher):
                 break
 
             self.log(activities)
-            logging.info("{} dispatched {} activities".format(self.name, len(activities)))
+            logging.debug("{} dispatched {} activities".format(self.name, len(activities)))
