@@ -60,6 +60,9 @@ class X11Watcher(Watcher):
 
         atom = self.display.get_atom("_NET_ACTIVE_WINDOW")
         window_prop = self.screen.root.get_full_property(atom, X.AnyPropertyType)
+        if window_prop is None:
+            logging.warning("window_prop was None")
+            return False
         window_id = window_prop.value[-1]
         window = self.get_window(window_id)
 
