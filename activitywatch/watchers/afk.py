@@ -100,7 +100,7 @@ class KeyboardListener(PyKeyboardEvent):
         self.keyboard_activity_event = keyboard_activity_event
 
     def tap(self, keycode, character, press):
-        logging.debug("Clicked keycode " + str(keycode))
+        #logging.debug("Clicked keycode: {}".format(keycode))
         self.keyboard_activity_event.set()
 
 
