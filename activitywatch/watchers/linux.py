@@ -63,7 +63,7 @@ class X11Watcher(Watcher):
         if window_prop is None:
             logging.warning("window_prop was None")
             return False
-        window_id = window_prop.value[-1]
+        window_id = window_prop.value[-1] if window_prop.value[-1] != 0 else window_prop.value[0]
         window = self.get_window(window_id)
 
         if not self.last_window is None:
@@ -73,13 +73,14 @@ class X11Watcher(Watcher):
                 return False
 
         try:
-            self.get_window_pid(window)
-        except Xlib.error.BadWindow:
+            pid = self.get_window_pid(window)
+        except Xlib.error.BadWindow as e:
             logging.error("Error while updating active window, trying again.")
-            sleep(0.1)
+            logging.error(e, exc_info=True)
+            sleep(1)
             return False
 
-        self.pid = self.get_window_pid(window)
+        self.pid = pid
         self.window_name, self.cls = self.get_window_name(window)
         self.process = self.process_by_pid(self.pid)
         self.cmd = self.process.cmdline()
