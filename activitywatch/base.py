@@ -162,7 +162,7 @@ class Logger(Agent):
                     logging.debug("{} logged {} activities".format(self.name, len(activities)))
                 except Exception:
                     logging.error("An error occurred while trying to log activities, " +
-                                  "readding {} activities to log-queue.".format(len(activities)), exc_info=True)
+                                  "reading {} activities to log-queue.".format(len(activities)), exc_info=True)
                     self.add_activities(activities)
 
     @abstractmethod
