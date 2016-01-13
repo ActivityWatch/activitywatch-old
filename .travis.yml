@@ -4,6 +4,7 @@ sudo: false
 python:
     - 3.3
     - 3.4
+    - 3.5
     - nightly
 # pypy3 should be enabled when it has support for Python 3.3
 #   - pypy3
