@@ -10,26 +10,24 @@
 Logs the time spent by the user in different tasks on the computer.
 
 ## Usage
-Install the package with `sudo python3 setup.py install`, if it was successful then you may run the program simply by `activitywatch`. If you wish to run it via the command line you may either program your own `start()` function (see `main.py` for reference) or run the existing one with the following code:
+Install the package with `sudo python3 setup.py install`. Once installed you can run the program with the command `activitywatch`. If you wish to run it programatically you may either program your own `start()` function (see `main.py` for reference) or run the default one with the following code:
 
 
-    import activity
+    import activitywatch
     activitywatch.start()
 
-
-When you run the program the first time, a configuration file will be created, you must edit this file with correct settings in order to get some modules to load. This system will be improved upon in the near future.
-
 Alternatively, you can install and run it from a virtualenv. If you wish to run it from a virtualenv then you'll find the executable in `$your_virtualenv/bin/activitywatch` after installation.
+
+#### Configuration
+
+When you run the program the first time, a configuration file will be created at `$HOME/.activitywatch.json`, you must edit this file with correct settings in order to get some modules to load. This system will be improved upon in the future.
 
 #### Early users
 
 Since a stable version of activitywatch has yet to be released there are a few bugs every early user should know about, these are generally tagged with `high_priority` and you can find them all by following [this link](https://github.com/ErikBjare/activitywatch/labels/high%20priority).
 
-#### Configuration
-The first time you run the program, a configuration file will be created as `$HOME/.activitywatch.json`.
-
 #### Future usage
-ActivityWatch currently only supports Linux systems using X11 (if you use Linux don't know what X11 is, you are probably using it). It has not been extensively tested so keep an eye on the logs and report any bugs you find!
+ActivityWatch currently only supports Linux systems using X11 (if you use Linux and don't know what X11 is, you are probably using it). It has not been extensively tested so keep an eye on the logs and report any bugs you find!
 
 A more user friendly approach to installation and usage might become available in the future, depending on interest.
 Such a release might have Python bundled for non-python3 systems (with py2app and py2exe, on Linux it will likely still depend on Python 3.3+ being installed since most users probably don't want bundled Python).
