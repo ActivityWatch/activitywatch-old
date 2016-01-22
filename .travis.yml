@@ -1,27 +1,31 @@
-language: python
-sudo: false
+# See folder `.travis` for install scripts for OS X
 
-os:
-    - linux
-    - osx
-
-python:
-    - 3.3
-    - 3.4
-    - 3.5
-# Nightly is deemed excessive in testing, removing temporarily
-#   - nightly
 # pypy3 should be enabled when it has support for Python 3.3+
-#   - pypy3
+# nightly is currently deemed excessive, may be reintroduced in the future
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      python: 3.3
+    - os: linux
+      dist: trusty
+      python: 3.4
+    - os: linux
+      dist: trusty
+      python: 3.5
+    # See ~/.travis/setup.sh for Python installation
+    - os: osx
+      language: generic
 
 before_install:
-    - true
+    - ~/.travis/setup.sh
 
 install:
-    - python setup.py install
+    - python3 setup.py install
 
 before_script:
     - true
 
 script:
-    - python -m unittest discover -s ./tests -p '*.py'
+    - python3 -m unittest discover -s ./tests -p '*.py'
+
