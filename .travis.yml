@@ -1,5 +1,7 @@
 # See folder `.travis` for install scripts for OS X
 
+language: python
+
 # pypy3 should be enabled when it has support for Python 3.3+
 # nightly is currently deemed excessive, may be reintroduced in the future
 matrix:
