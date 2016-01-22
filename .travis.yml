@@ -5,18 +5,14 @@
 matrix:
   include:
     - os: linux
-      dist: trusty
       python: 3.3
     - os: linux
-      dist: trusty
       python: 3.4
     - os: linux
-      dist: trusty
       python: 3.5
     # See ~/.travis/setup.sh for Python installation
     - os: osx
       language: generic
-      env:
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
