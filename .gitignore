@@ -1,11 +1,19 @@
-virtualenv
-*.pyc
-*.swp
-.idea
-output.json
+# Build files
 build
 dist
 *.egg-info
 
+# Sensitive files
+output.json
+
+# Virtualenvs
+virtualenv
+venv
+
 # Custom scripts
 create_virtualenv.sh
+
+# Misc files
+*.pyc
+*.swp
+.idea

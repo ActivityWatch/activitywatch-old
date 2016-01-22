@@ -19,24 +19,26 @@ def start():
     mm = ModuleManager()
 
     # Create Loggers
-    zenobaselogger = loggers.ZenobaseLogger()
     jsonlogger = loggers.JSONLogger()
-    mongodblogger = loggers.MongoDBLogger()
+    #zenobaselogger = loggers.ZenobaseLogger()
+    #mongodblogger = loggers.MongoDBLogger()
 
     # Create Watchers
     if platform.system() == "Linux":
         windowwatcher = watchers.X11Watcher()
-    #elif platform.system() == "Darwin":
-    #    windowwatcher = watchers.OSXWatcher()
+    elif platform.system() == "Darwin":
+        windowwatcher = watchers.OSXWatcher()
     else:
-        raise Exception("Sorry, only Linux is currently supported, stay tuned for updates or contribute module for your operating system.")
+        raise Exception("""Sorry, your operating system is not currently supported,
+                           you can stay tuned for updates or contribute support for your operating system by
+                           searching for your operating system in the issue tracker.""")
     afkwatcher = watchers.AFKWatcher()
 
     # Create filters
     splitfilter = filters.SplitFilter()
 
     # Add loggers and watchers to ModuleManager
-    mm.add_agents([zenobaselogger, jsonlogger, windowwatcher, afkwatcher, mongodblogger, splitfilter])
+    mm.add_agents([jsonlogger, windowwatcher, splitfilter, afkwatcher])
 
     # Data from all watchers to all loggers should go through the splitfilter
     splitfilter.add_watchers(mm.watchers)
@@ -50,6 +52,7 @@ def start():
         gui.main()
     except ImportError:
         # PyQt4 will fail import if not installed
+        logging.info("PyQt4 not available, running without trayicon")
         pass
 
     rest.start_server()

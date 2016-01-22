@@ -1,5 +1,5 @@
+import platform
 from threading import Event, Thread
-from time import sleep
 from datetime import datetime, timedelta
 import logging
 
@@ -9,15 +9,17 @@ from pykeyboard import PyKeyboard, PyKeyboardEvent
 from ..base import Watcher, Activity
 
 
-def repeat_trigger(waiter, trigger, timeout):
+def _repeat_trigger(waiter: Event, trigger: Event, timeout):
     if waiter.wait(timeout+1):
         trigger.set()
 
 
-def wait_for_either(a, b, timeout=None):
+def _wait_for_either(a: Event, b: Event, timeout=None):
+    """Waits for any one of two events to happen"""
+    # TODO: Reuse threads, don't recreate
     trigger = Event()
-    ta = Thread(target=repeat_trigger, args=(a, trigger, timeout))
-    tb = Thread(target=repeat_trigger, args=(b, trigger, timeout))
+    ta = Thread(target=_repeat_trigger, args=(a, trigger, timeout))
+    tb = Thread(target=_repeat_trigger, args=(b, trigger, timeout))
     ta.start()
     tb.start()
     # Now do the union waiting
@@ -66,11 +68,15 @@ class AFKWatcher(Watcher):
         keyboard_activity_event = Event()
         mouse_activity_event = Event()
 
-        KeyboardListener(keyboard_activity_event).start()
+        # OS X doesn't seem to like the KeyboardListener... segfaults
+        if platform.system() != "Darwin":
+            KeyboardListener(keyboard_activity_event).start()
+        else:
+            logging.warning("KeyboardListener is broken in OS X, will not use for detecting AFK state.")
         MouseListener(mouse_activity_event).start()
 
         while True:
-            if wait_for_either(keyboard_activity_event, mouse_activity_event, timeout=1):
+            if _wait_for_either(keyboard_activity_event, mouse_activity_event, timeout=1):
                 # Check if there has been any activity on the mouse or keyboard and if so,
                 # update last_activity to now and set is_afk to False if previously AFK
                 self.now = datetime.now()
@@ -88,6 +94,7 @@ class AFKWatcher(Watcher):
                 passed_afk = passed_time > timedelta(seconds=self.settings["timeout"])
                 if passed_afk:
                     self.is_afk = True
+
 
     @property
     def default_settings(self):

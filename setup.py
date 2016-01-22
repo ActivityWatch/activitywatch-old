@@ -13,7 +13,10 @@ elif platform.system() == "Darwin":
     #   https://bitbucket.org/ronaldoussoren/pyobjc/issues/21
     # Workaround used can be found here:
     #   https://pythonhosted.org/pyobjc/install.html
-    install_requires.extend(["pyobjc-core", "pyobjc"])
+    #install_requires.extend(["pyobjc-core", "pyobjc"])
+
+    # Testing exclusion of unneeded pyobjc wrappers
+    install_requires.extend(["pyobjc-core", "pyobjc-framework-Cocoa", "pyobjc-framework-Quartz"])
 
 setup(
     name='activitywatch',
