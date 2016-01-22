@@ -42,5 +42,13 @@ We think we need logs on our lives, so that we know what we said, did, how well 
 
 There are already services doing something similar such as [RescueTime](https://www.rescuetime.com/), [Time Doctor](http://www.timedoctor.com/) and [ManicTime](http://www.manictime.com/). But they are often closed source, costly, lack mobile support, buggy and feature incomplete. For a programmer closed source is very frustrating as it prevents one from solving the imperfections of existing solutions. So this is an attempt to start from scratch with the intention to make what came before obsolete, with the hopes that what might one day make this obsolete has taken advantage of our code and published it under a free license so others may follow.
 
+#### Other software that does similar things
+I was aware of the existance of (most) of these when I started, but didn't find them satisfactory. I'm listing them here since I think it's important for me to disclose the alternatives you have if you are looking for something similar to this project. Also, having multiple datasources never hurt.
+
+ - [selfspy](https://github.com/gurgeh/selfspy)
+ - [arbtt](http://arbtt.nomeata.de/)
+ - [WakaTime](https://wakatime.com/) (specializes in monitoring code editors, partially open source with centralized data storage)
+ - [RescueTime](https://www.rescuetime.com/) (closed source, centralized data storage)
+
 ## Donations
 If you want something, or want to say thanks by giving a monetary incentive, throw money at this Bitcoin address: `1E3nz6eF1474iNRZzJdsZyMT7BXo1y5b3n`
