@@ -1,8 +1,19 @@
 from setuptools import setup, find_packages  # Always prefer setuptools over distutils
 from codecs import open  # To use a consistent encoding
 from os import path
+import platform
 
 here = path.abspath(path.dirname(__file__))
+install_requires = ['flask', 'psutil', 'pyuserinput', 'pyzenobase', 'mypy-lang', 'pymongo', 'tzlocal']
+
+if platform.system() == "Linux":
+    install_requires.extend(["python3-xlib"])
+elif platform.system() == "Darwin":
+    # Installing both (in specific order) due to pyobjc issue #21:
+    #   https://bitbucket.org/ronaldoussoren/pyobjc/issues/21
+    # Workaround used can be found here:
+    #   https://pythonhosted.org/pyobjc/install.html
+    install_requires.extend(["pyobjc-core", "pyobjc"])
 
 setup(
     name='activitywatch',
@@ -76,12 +87,11 @@ setup(
     # project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
-    install_requires=['flask', 'psutil', 'pyuserinput', 'pyzenobase', 'python3-xlib', 'mypy-lang', 'pymongo', 'tzlocal'],
+    install_requires=install_requires,
 
     entry_points={
         'console_scripts': ['activitywatch = activitywatch:start']
     },
 
-    dependency_links=['https://github.com/ErikBjare/pyzenobase/archive/master.zip#egg=pyzenobase',
-                      'https://git@github.com/liulang/python3-xlib/archive/master.zip#egg=xlib']
+    dependency_links=['https://git@github.com/liulang/python3-xlib/archive/master.zip#egg=xlib']
 )
