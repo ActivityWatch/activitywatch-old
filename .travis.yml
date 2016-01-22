@@ -14,7 +14,10 @@ matrix:
       python: 3.5
     # See ~/.travis/setup.sh for Python installation
     - os: osx
+      osx_image: xcode7.3
       language: generic
+  allow_failures:
+    - os: osx
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
