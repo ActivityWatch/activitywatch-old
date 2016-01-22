@@ -18,7 +18,7 @@ matrix:
       language: generic
 
 before_install:
-    - ~/.travis/setup.sh
+    - .travis/setup.sh
 
 install:
     - python3 setup.py install
