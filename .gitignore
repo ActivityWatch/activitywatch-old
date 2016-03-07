@@ -5,6 +5,8 @@ dist
 
 # Sensitive files
 output.json
+*.bkp
+*.prof
 
 # Virtualenvs
 virtualenv
