@@ -2,6 +2,7 @@
 
 import threading
 from time import sleep
+import logging
 
 import yappi
 
@@ -10,7 +11,7 @@ import activitywatch
 yappi.start(profile_threads=True)
 
 print("Starting to profile")
-thread = threading.Thread(target=activitywatch.start, daemon=False)
+thread = threading.Thread(target=activitywatch.start, kwargs={"loglevel": logging.DEBUG}, daemon=False)
 thread.start()
 
 try:
