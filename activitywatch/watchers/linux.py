@@ -46,6 +46,7 @@ class X11Watcher(Watcher):
         self._last_window = self.active_window
         self.last_selected_at = self.selected_at
         self.last_pid = self.pid
+        self.last_cmd = self.cmd
         self.last_name, self.last_cls = self.window_name, self.cls
         self.last_process = self.process
 
@@ -115,7 +116,7 @@ class X11Watcher(Watcher):
 
         # Creation of the activity that just ended
         # TODO: Create activity upon exit
-        activity = Activity(self.last_cls, self.last_selected_at, datetime.now(), cmd=self.cmd)
+        activity = Activity(self.last_cls, self.last_selected_at, datetime.now(), cmd=self.last_cmd)
         self.dispatch_activity(activity)
 
         logging.debug("Switched to '{}' with PID: {}".format(self.cls, self.pid))
