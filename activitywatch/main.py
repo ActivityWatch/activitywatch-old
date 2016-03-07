@@ -1,18 +1,25 @@
+import logging
+
 from . import loggers, watchers, filters
 from . import ModuleManager
 from . import rest
 
-
-def start():
+def start(loglevel=logging.INFO):
     import platform
-    import logging
     import argparse
 
     parser = argparse.ArgumentParser(description='Logs your computer activities and much more. Built to be extended.')
-    parser.add_argument('--debug', action='store_true', help='Sets loglevel to debug')
+    parser.add_argument('--debug', action='store_true', help='Enables logging of debug messages')
+    #parser.add_argument('--profile', action='store_true', help='Enables profiling for use in performance optimization')
     args = parser.parse_args()
 
-    loglevel = logging.DEBUG if args.debug else logging.INFO
+    #if args.profile:
+    #    import yappi
+    #    yappi.start()
+
+    if args.debug:
+        loglevel = logging.DEBUG
+
     logging.basicConfig(level=loglevel, format="%(asctime)s %(levelname)s from %(threadName)s: %(message)s")
 
     # Initialize ModuleManager for the first time (it's a singleton)
