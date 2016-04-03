@@ -1,3 +1,7 @@
+# WARNING
+***This version of the project has been abandoned, if you are interested about this kind of code, look here: https://github.com/ActivityWatch***
+
+
 # ActivityWatch
 *A complete RescueTime replacement, for the open world with [Zenobase](http://zenobase.com).*
 
